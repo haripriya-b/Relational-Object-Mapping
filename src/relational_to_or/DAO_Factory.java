@@ -7,15 +7,18 @@ import java.sql.SQLException;
 public class DAO_Factory {
 	
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	static final String DB_URL = "jdbc:mysql://localhost/applicationdb";
-	static final String USER = "root";
-	static final String PASS = "mellon";
+	String DB_URL;
+	String USER;
+	String PASS;
 	Connection dbconnection = null;
 
 	boolean activeConnection = false;
 
-	public DAO_Factory()
+	public DAO_Factory(String url, String user, String password)
 	{
+		DB_URL = url;
+		USER = user;
+		PASS = password;
 		dbconnection = null;
 		activeConnection = false;
 	}
@@ -28,7 +31,6 @@ public class DAO_Factory {
 		try{
 			Class.forName("com.mysql.jdbc.Driver");
 			dbconnection = DriverManager.getConnection(DB_URL,USER,PASS);
-			dbconnection.setAutoCommit(false);
 			activeConnection = true;
 		} catch(ClassNotFoundException ex) {
 			System.out.println("Error: unable to load driver class!");

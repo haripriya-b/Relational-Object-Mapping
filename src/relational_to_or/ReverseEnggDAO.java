@@ -7,7 +7,7 @@ public interface ReverseEnggDAO {
 	 ArrayList<String> getClassNames();
 	 ArrayList<Attribute> getAttributes(String className);
 	 ArrayList<Attribute> getPrimaryKeys(String className);
-	 ArrayList<Class> getClasses(ArrayList<String> classNames);
+	 ArrayList<Class_Details> getClasses(ArrayList<String> classNames);
 	 ForeignKeyDetails getFKs();
 	 ArrayList<RelatedTables> getOneToOneAssociations();
 	 ArrayList<RelatedTables> getOneToManyAssociation();

@@ -19,6 +19,17 @@ public class Main {
 			System.out.println("Database name:");
 			dbname=sc.nextLine();
 			dao_Factory = new DAO_Factory(dbname, username, password);
+			dao_Factory.activateConnection();
+			ReverseEnggDAO rdao = dao_Factory.getReverseEnggDAO();
+			//ArrayList<String> names = rdao.getClassNames();
+			//for(int i=0; i<names.size(); i++) {
+			//	System.out.println(names.get(i));
+			//}
+			//ArrayList<Attribute> a = rdao.getPrimaryKeys("applicant");
+			//for(int i=0; i<a.size(); i++) {
+			//	a.get(i).print();
+			//}
+			dao_Factory.deactivateConnection();
 		}
 		catch(Exception e){
 			e.printStackTrace();

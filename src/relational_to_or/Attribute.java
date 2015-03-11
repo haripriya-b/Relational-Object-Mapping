@@ -9,6 +9,14 @@ public class Attribute {
 	boolean unique;
 	
 	
+	public Attribute(String name, String type, int size, boolean notnull,
+			boolean unique) {
+		this.name = name;
+		this.type = type;
+		this.size = size;
+		this.notnull = notnull;
+		this.unique = unique;
+	}
 	public String getName() {
 		return name;
 	}
@@ -38,6 +46,11 @@ public class Attribute {
 	}
 	public void setUnique(boolean unique) {
 		this.unique = unique;
+	}
+	
+	public void print() {
+		System.out.println("Attribute [name=" + name + ", type=" + type + ", size=" + size
+				+ ", notnull=" + notnull + ", unique=" + unique + "]");
 	}
 	
 	

@@ -9,7 +9,6 @@ public class Main {
 	
 	public static void main(String args[]) {
 		String username = "", password = "", dbname="";
-		String url = "jdbc:mysql://localhost/";
 		try {
 			System.out.println("Welcome to our Relational to OO Mapping System!");
 			System.out.println("Please enter the details:");
@@ -19,7 +18,7 @@ public class Main {
 			password=sc.nextLine();
 			System.out.println("Database name:");
 			dbname=sc.nextLine();
-			dao_Factory = new DAO_Factory(url+dbname, username, password);
+			dao_Factory = new DAO_Factory(dbname, username, password);
 		}
 		catch(Exception e){
 			e.printStackTrace();

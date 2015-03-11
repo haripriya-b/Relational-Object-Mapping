@@ -1,12 +1,21 @@
 package relational_to_or;
 
 import java.util.ArrayList;
+import java.sql.*;
 
 public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
+	
+	Connection dbconnection;
+	String dbname;
+
+	public ReverseEnggDAO_JDBC(Connection dbconnection2, String dbname) {
+		this.dbconnection = dbconnection2;
+		this.dbname = dbname;
+	}
 
 	@Override
 	public ArrayList<String> getClassNames() {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

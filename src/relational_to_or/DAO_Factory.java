@@ -1,22 +1,23 @@
 package relational_to_or;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DAO_Factory {
 	
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	String DB_URL;
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	static final String DB_URL = "jdbc:mysql://localhost/information_schema";
+	String dbname;
 	String USER;
 	String PASS;
 	Connection dbconnection = null;
-
+	
+	ReverseEnggDAO rdao = null;
+	
 	boolean activeConnection = false;
 
-	public DAO_Factory(String url, String user, String password)
+	public DAO_Factory(String name, String user, String password)
 	{
-		DB_URL = url;
+		dbname = name;
 		USER = user;
 		PASS = password;
 		dbconnection = null;
@@ -42,6 +43,18 @@ public class DAO_Factory {
 		    System.out.println("VendorError: " + ex.getErrorCode());
 		}
 	}
+	
+	public ReverseEnggDAO getReverseEnggDAO() throws Exception
+	{
+		if( activeConnection == false )
+			throw new Exception("Connection not activated...");
+
+		if( rdao == null )
+			rdao = new ReverseEnggDAO_JDBC(dbconnection, dbname);
+
+		return rdao;
+	}
+	
 	public void deactivateConnection()
 	{
 		// Okay to keep deactivating an already deactivated connection

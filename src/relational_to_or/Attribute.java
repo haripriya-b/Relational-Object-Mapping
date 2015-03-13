@@ -5,7 +5,7 @@ public class Attribute {
 	String name;
 	String type;
 	int size;
-	boolean notnull;
+	boolean is_nullable;
 	boolean unique;
 	
 	
@@ -14,7 +14,7 @@ public class Attribute {
 		this.name = name;
 		this.type = type;
 		this.size = size;
-		this.notnull = notnull;
+		this.is_nullable = notnull;
 		this.unique = unique;
 	}
 	public String getName() {
@@ -36,10 +36,10 @@ public class Attribute {
 		this.size = size;
 	}
 	public boolean isNotnull() {
-		return notnull;
+		return is_nullable;
 	}
 	public void setNotnull(boolean notnull) {
-		this.notnull = notnull;
+		this.is_nullable = notnull;
 	}
 	public boolean isUnique() {
 		return unique;
@@ -50,7 +50,7 @@ public class Attribute {
 	
 	public void print() {
 		System.out.println("Attribute [name=" + name + ", type=" + type + ", size=" + size
-				+ ", notnull=" + notnull + ", unique=" + unique + "]");
+				+ ", notnull=" + is_nullable + ", unique=" + unique + "]");
 	}
 	
 	

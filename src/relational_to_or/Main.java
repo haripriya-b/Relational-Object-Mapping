@@ -29,6 +29,12 @@ public class Main {
 			//for(int i=0; i<a.size(); i++) {
 			//	a.get(i).print();
 			//}
+			
+			ArrayList<Attribute> a = rdao.getAttributes("applicant");
+			for(int i=0;i<a.size();i++){
+				a.get(i).print();
+			}
+			
 			dao_Factory.deactivateConnection();
 		}
 		catch(Exception e){

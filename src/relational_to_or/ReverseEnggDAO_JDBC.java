@@ -39,7 +39,67 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 
 	@Override
 	public ArrayList<Attribute> getAttributes(String className) {
-		return null;
+		
+		HashMap<String,String> m1 = new HashMap<String,String>();
+		m1.put("int", "integer");
+		m1.put("bigint", "long");
+		m1.put("smallint", "short");
+		m1.put("float", "float");
+		m1.put("double", "double");
+		m1.put("numeric", "big_decimal");
+		m1.put("char", "character");
+		m1.put("varchar","string");
+		m1.put("tinyint","byte");
+		m1.put("bit","boolean");
+		m1.put("date","date");
+		m1.put("time","time");
+		m1.put("timestamp","timestamp");
+		m1.put("varbinary","binary");
+		m1.put("blob","blob");
+		m1.put("clob","clob");      
+		String sql;
+		Statement stmt_attributes = null;
+		ArrayList<Attribute> attributes= new ArrayList<Attribute>();
+		try {
+			
+			stmt_attributes = dbconnection.createStatement();
+			sql = "select column_name name, data_type type, "
+					+ "character_maximum_length size, is_nullable, "
+					+ "constraint_type from information_schema.columns "
+					+ "LEFT JOIN (select * from information_schema.table_constraints"
+					+ " where table_schema='" + dbname + "' and table_name='" 
+					+ className + "' and constraint_type='UNIQUE') as tc "
+					+ "ON column_name=tc.constraint_name "
+					+ "where columns.table_schema='" + dbname + "' and "
+					+ "columns.table_name='" + className + "' and column_key!='PRI'";
+			
+			ResultSet rs = stmt_attributes.executeQuery(sql);
+			
+			while(rs.next()) {
+				String column_name = rs.getString("name");
+				String column_type = rs.getString("type");
+				int size = rs.getInt("size");
+				String data_type = m1.get(column_type);
+				String is_nullable = rs.getString("is_nullable");
+				boolean is_null = true;
+				if (is_nullable.equals("NO"))
+					is_null = false;
+				String unique = rs.getString("constraint_type");
+				boolean is_unique = true;
+				if (unique == null)
+						is_unique = false;
+				Attribute temp_key = new Attribute(column_name,data_type,size,is_null,is_unique);
+				attributes.add(temp_key); 
+			}
+			
+		} catch (SQLException ex) {
+		    // handle any errors
+		    System.out.println("SQLException: " + ex.getMessage());
+		    System.out.println("SQLState: " + ex.getSQLState());
+		    System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		
+		return attributes;
 	}
 
 	@Override
@@ -76,7 +136,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 				String column_type = rs_primarykey1.getString("data_type");
 				int size = rs_primarykey1.getInt("character_maximum_length");
 				String data_type = m1.get(column_type);
-				Attribute temp_key = new Attribute(column_name,data_type,size,true,true);
+				Attribute temp_key = new Attribute(column_name,data_type,size,false,true);
 				list_of_pks.add(temp_key);
 			}
 			

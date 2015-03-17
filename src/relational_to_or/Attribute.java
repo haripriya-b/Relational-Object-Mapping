@@ -35,7 +35,7 @@ public class Attribute {
 	public void setSize(int size) {
 		this.size = size;
 	}
-	public boolean isNotnull() {
+	public boolean isNullable() {
 		return is_nullable;
 	}
 	public void setNotnull(boolean notnull) {

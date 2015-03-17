@@ -21,19 +21,36 @@ public class Main {
 			dao_Factory = new DAO_Factory(dbname, username, password);
 			dao_Factory.activateConnection();
 			ReverseEnggDAO rdao = dao_Factory.getReverseEnggDAO();
-			//ArrayList<String> names = rdao.getClassNames();
-			//for(int i=0; i<names.size(); i++) {
-			//	System.out.println(names.get(i));
-			//}
-			//ArrayList<Attribute> a = rdao.getPrimaryKeys("applicant");
-			//for(int i=0; i<a.size(); i++) {
-			//	a.get(i).print();
-			//}
+			ArrayList<String> names = rdao.getClassNames();
+			for(int i=0; i<names.size(); i++) {
+				System.out.println(names.get(i));
+			}
 			
-			ArrayList<Attribute> a = rdao.getAttributes("applicant");
-			for(int i=0;i<a.size();i++){
+			ArrayList<String> fileNames = new ArrayList<String>();
+			for (int i=0;i<names.size();i++) {
+				fileNames.add(names.get(i)+".hbm.xml");
+				//System.out.println(fileNames.get(i));
+			}
+			ArrayList<Attribute> a = rdao.getPrimaryKeys("applicant");
+			for(int i=0; i<a.size(); i++) {
 				a.get(i).print();
 			}
+			
+			ArrayList<Class_Details> classes = rdao.getClasses(names);
+			
+			ArrayList<Attribute> a1 = rdao.getAttributes("applicant");
+			for(int i=0;i<a1.size();i++){
+				a1.get(i).print();
+			}
+			
+			XMLWriter configFiles = new XMLWriter();
+			configFiles.setFiles(fileNames);
+			try {
+				configFiles.saveConfig(classes);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			
 			
 			dao_Factory.deactivateConnection();
 		}

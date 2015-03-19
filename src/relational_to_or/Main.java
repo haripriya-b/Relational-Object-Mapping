@@ -43,14 +43,11 @@ public class Main {
 				a1.get(i).print();
 			}
 			
-			XMLWriter configFiles = new XMLWriter();
-			configFiles.setFiles(fileNames);
-			try {
-				configFiles.saveConfig(classes);
-			} catch(Exception e) {
-				e.printStackTrace();
+			XMLWriter file;
+			for (int i=0;i<names.size();i++) {
+				file = new XMLWriter(classes.get(i),fileNames.get(i));
+				file.createXML();
 			}
-			
 			
 			dao_Factory.deactivateConnection();
 		}

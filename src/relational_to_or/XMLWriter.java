@@ -1,147 +1,116 @@
 package relational_to_or;
 
-import java.io.FileOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 
-import javax.xml.stream.*;
-import javax.xml.stream.events.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
 
 public class XMLWriter {
-	private ArrayList<String> configFiles;
+	Class_Details c;
+	String file_name;
+	Document doc;
 	
-	public void setFiles (ArrayList<String> configFiles) {
-		this.configFiles = configFiles;
-	}
-	
-	public void saveConfig(ArrayList<Class_Details> classes) throws Exception {
-		
-		//create XMLOutputFactory
-		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-		int i;
-		for(i=0;i<configFiles.size();i++) {
-			//Create XMLEventWriter
-			XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(new FileOutputStream(configFiles.get(i)));
-			
-			//Create EventFactory
-			XMLEventFactory eventFactory = XMLEventFactory.newInstance();
-			XMLEvent end = eventFactory.createDTD("\n");
-			XMLEvent open = eventFactory.createDTD("<");
-			XMLEvent close = eventFactory.createDTD(">");
-						
-			//Create and write start tag
-			StartDocument startDocument = eventFactory.createStartDocument();
-			eventWriter.add(startDocument);
-			eventWriter.add(end);
-			
-			//Create and write !DOCTYPE
-			eventWriter.add(open);
-			eventWriter.add(eventFactory.createCharacters( "!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD//EN\"\"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\""));
-			eventWriter.add(close);
-			eventWriter.add(end);
-			
-			//Create hibernate-mapping open tag
-			StartElement hibernateStartElement = eventFactory.createStartElement("", "", "hibernate-mapping");
-			eventWriter.add(hibernateStartElement);
-			eventWriter.add(end);
-			
-			//Create the class tag
-			StartElement classStartElement = eventFactory.createStartElement("", "", "class");
-			eventWriter.add(classStartElement);
-			eventWriter.add(eventFactory.createAttribute("name", classes.get(i).getName()));
-			eventWriter.add(eventFactory.createAttribute("table",classes.get(i).getName()));
-			eventWriter.add(end);	
-			
-			//Write the different nodes
-			ArrayList <Attribute> pks = classes.get(i).getPrimaryKeys();
-			addPrimaryKeys(eventWriter, pks);
-			
-			ArrayList <Attribute> attributes = classes.get(i).getAttributes();
-			for(int j=0; j<attributes.size(); j++) {
-				addProperty(eventWriter, attributes.get(j));
-			}
-			
-			
-			// Create hibernate-mapping close tag
-			eventWriter.add(eventFactory.createEndElement("", "", "hibernate-mapping"));
-			eventWriter.add(end);
-			
-			//Create and write end tag
-			eventWriter.add(eventFactory.createEndDocument());
-			eventWriter.close();
+	public XMLWriter(Class_Details c, String file_name) {
+		this.c = c;
+		this.file_name = file_name;
+		Document doc = null;
+		try {
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			doc = docBuilder.newDocument();
+			doc.setXmlStandalone(true);
 		}
+		catch(ParserConfigurationException pce) {
+			pce.printStackTrace();
+		}
+		this.doc = doc;
 	}
 	
-	private void addPrimaryKeys(XMLEventWriter eventWriter, ArrayList <Attribute> primaryKeys) throws XMLStreamException {
-
-	    XMLEventFactory eventFactory = XMLEventFactory.newInstance();
-	    XMLEvent end = eventFactory.createDTD("\n");
-	    XMLEvent tab = eventFactory.createDTD("\t");
-	    
-	    if(primaryKeys.size()==1) {
-	    	// create Start node
-		    StartElement sElement = eventFactory.createStartElement("", "", "id");
-		    eventWriter.add(tab);
-		    eventWriter.add(sElement);
-		    
-	    	// adding attributes to the node
-		    eventWriter.add(eventFactory.createAttribute("name", primaryKeys.get(0).getName()));
-		    eventWriter.add(eventFactory.createAttribute("column", primaryKeys.get(0).getName()));
-		    eventWriter.add(eventFactory.createAttribute("type", primaryKeys.get(0).getType()));
-	    
-		    // create End node
-		    EndElement eElement = eventFactory.createEndElement("", "", "id");
-		    eventWriter.add(eElement);
-		    eventWriter.add(end);
-
+	public void createXML() {
+		createTree();
+		try {
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+			DOMImplementation domImpl = doc.getImplementation();
+			DocumentType doctype = domImpl.createDocumentType("hibernate-mapping",
+				    "-//Hibernate/Hibernate Mapping DTD//EN",
+				    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd");
+			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
+			transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new File(file_name));
+			transformer.transform(source, result);
+		}
+		catch(TransformerException tfe) {
+			tfe.printStackTrace();
+		}		
+	}
+	
+	private void createTree() {
+		// creating root element
+		Element rootElement = doc.createElement("hibernate-mapping");
+		doc.appendChild(rootElement);
+		
+		//creating class element and its attributes
+		Element classElement = doc.createElement("class");
+		rootElement.appendChild(classElement);
+		classElement.setAttribute("name", c.getName());
+		classElement.setAttribute("column", c.getName());
+		
+		addPrimaryKeys(classElement);
+		addAttributes(classElement);
+	}
+	
+	private void addPrimaryKeys(Element classElement) {
+		ArrayList <Attribute> primaryKeys = c.getPrimaryKeys();
+		//creating id element for pks
+		if(primaryKeys.size()==1) {
+			Element idElement = doc.createElement("id");
+			classElement.appendChild(idElement);
+			idElement.setAttribute("name", primaryKeys.get(0).getName());
+			idElement.setAttribute("column", primaryKeys.get(0).getName());
+			idElement.setAttribute("type", primaryKeys.get(0).getType());
 	    }
 	    else {
-	    	// create Start node
-		    StartElement sElement = eventFactory.createStartElement("", "", "composite-id");
-		    eventWriter.add(tab);
-		    eventWriter.add(sElement);
-		    
-	    	// adding attributes to the node
-		    for(int i=0; i<primaryKeys.size(); i++) {
-			    sElement = eventFactory.createStartElement("", "", "key-property");
-			    eventWriter.add(tab);
-			    eventWriter.add(sElement);
-			    eventWriter.add(eventFactory.createAttribute("name", primaryKeys.get(i).getName()));
-			    eventWriter.add(eventFactory.createAttribute("column", primaryKeys.get(i).getName()));
-			    eventWriter.add(eventFactory.createAttribute("type", primaryKeys.get(i).getType()));
-			    EndElement eElement = eventFactory.createEndElement("", "", "key-property");
-			    eventWriter.add(eElement);
-			    eventWriter.add(end);
+	    	Element idElement = doc.createElement("composite-id");
+			classElement.appendChild(idElement);
+			for(int i=0; i<primaryKeys.size(); i++) {
+				Element keyElement = doc.createElement("key-property");
+				idElement.appendChild(keyElement);
+			    keyElement.setAttribute("name", primaryKeys.get(i).getName());
+				keyElement.setAttribute("column", primaryKeys.get(i).getName());
+				keyElement.setAttribute("type", primaryKeys.get(i).getType());
 		    }
-		    
-		    // create End node
-		    EndElement eElement = eventFactory.createEndElement("", "", "composite-id");
-		    eventWriter.add(eElement);
-		    eventWriter.add(end);
 	    }
 	}
 	
-	private void addProperty(XMLEventWriter eventWriter, Attribute attribute) throws XMLStreamException {
-
-	    XMLEventFactory eventFactory = XMLEventFactory.newInstance();
-	    XMLEvent end = eventFactory.createDTD("\n");
-	    XMLEvent tab = eventFactory.createDTD("\t");
-	    
-	    // create Start node
-	    StartElement sElement = eventFactory.createStartElement("", "", "property");
-	    eventWriter.add(tab);
-	    eventWriter.add(sElement);
-	    
-	    // adding attributes to the node
-	    eventWriter.add(eventFactory.createAttribute("name", attribute.getName()));
-	    eventWriter.add(eventFactory.createAttribute("column", attribute.getName()));
-	    eventWriter.add(eventFactory.createAttribute("type", attribute.getType()));
-	    eventWriter.add(eventFactory.createAttribute("unique", Boolean.toString(attribute.isUnique())));
-	    eventWriter.add(eventFactory.createAttribute("not-null", Boolean.toString(!attribute.isNullable())));
-	    
-	    // create End node
-	    EndElement eElement = eventFactory.createEndElement("", "", "property");
-	    eventWriter.add(eElement);
-	    eventWriter.add(end);
-
-	  }
+	private void addAttributes(Element classElement) {
+		ArrayList <Attribute> attributes = c.getAttributes();
+		//creating property element for each attribute
+		for(int i=0; i<attributes.size(); i++) {
+			Element propElement = doc.createElement("property");
+			classElement.appendChild(propElement);
+			propElement.setAttribute("name", attributes.get(i).getName());
+			propElement.setAttribute("column", attributes.get(i).getName());
+			propElement.setAttribute("type", attributes.get(i).getType());
+			propElement.setAttribute("unique", Boolean.toString(attributes.get(i).isUnique()));
+			propElement.setAttribute("not-null", Boolean.toString(!attributes.get(i).isNullable()));
+		}
+	}
 }
+

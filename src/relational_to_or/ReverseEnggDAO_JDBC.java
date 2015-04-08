@@ -162,9 +162,17 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		return classes;
 	}
 
+	
+
+	@Override
+	public Class_Details getClassbyName(String name,
+			ArrayList<Class_Details> classes) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	@Override
 	public ArrayList<Referential_Constraint> getAllConstraints() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

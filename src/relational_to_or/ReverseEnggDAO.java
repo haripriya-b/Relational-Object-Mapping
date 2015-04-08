@@ -9,6 +9,7 @@ public interface ReverseEnggDAO {
 	 ArrayList<Attribute> getPrimaryKeys(String className);
 	 ArrayList<Class_Details> getClasses(ArrayList<String> classNames);
 	 Class_Details getClassbyName(String name, ArrayList<Class_Details> classes);
+	 Attribute getAttributebyName(String name, Class_Details class1);
 	 ArrayList<Referential_Constraint> getAllConstraints();
 	 ArrayList<ManyToMany> getManyToManyRelations(ArrayList<Referential_Constraint> constraints, ArrayList<Class_Details> classes);
 	 ArrayList<Referential_Constraint> findManyToManyRelations(ArrayList<Referential_Constraint> constraints, ArrayList<Class_Details> classes);

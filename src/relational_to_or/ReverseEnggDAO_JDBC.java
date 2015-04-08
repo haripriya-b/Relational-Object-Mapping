@@ -167,12 +167,71 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	@Override
 	public Class_Details getClassbyName(String name,
 			ArrayList<Class_Details> classes) {
-		// TODO Auto-generated method stub
-		return null;
+			for(int i=0; i<classes.size(); i++)
+			{
+				if( classes.get(i).getName().equals(name) )
+					return classes.get(i);
+			}
+			return null;
 	}
 	
+
+	@Override
+	public Attribute getAttributebyName(String name, Class_Details class1) {
+		for(int i=0; i<class1.getAttributes().size(); i++)
+		{
+			if( class1.getAttributes().get(i).getName().equals(name) )
+				return class1.getAttributes().get(i);
+		}
+		for(int i=0; i<class1.getPrimaryKeys().size(); i++)
+		{
+			if( class1.getPrimaryKeys().get(i).getName().equals(name) )
+				return class1.getPrimaryKeys().get(i);
+		}
+		return null;
+	}
+
 	@Override
 	public ArrayList<Referential_Constraint> getAllConstraints() {
+		String sql;
+		Statement stmt_referentialconstraint1 = null;
+		ArrayList<Referential_Constraint> list_of_rcs= new ArrayList<Referential_Constraint>();
+		try{
+			stmt_referentialconstraint1 = dbconnection.createStatement();
+			sql = "select key_column_usage.table_name, key_column_usage.column_name," +
+					" key_column_usage.referenced_column_name, referential_constraints.delete_rule" +
+					" from key_column_usage inner join referential_constraints on" +
+					"referential_constraints.constraint_name = key_column_usage.constraint_name" +
+					"where key_column_usage.table_schema=\"" + dbname + "\"";
+			ResultSet rs_referentialconstraint1 = stmt_referentialconstraint1.executeQuery(sql);
+			
+			while(rs_referentialconstraint1.next()){
+				String table_name = rs_referentialconstraint1.getString("key_column_usage.table_name");
+				String column_name = rs_referentialconstraint1.getString("key_column_usage.column_name");
+				String referenced_table = rs_referentialconstraint1.getString("key_column_usage.referenced_column_name");
+				String delete_type = rs_referentialconstraint1.getString("referential_constraints.delete_rule");
+				ArrayList<String> class_names = getClassNames();
+				ArrayList<Class_Details> classes = getClasses(class_names);
+				Class_Details tbl1 = getClassbyName(table_name,classes);
+				Class_Details tbl2 = getClassbyName(referenced_table, classes);
+				Attribute column = getAttributebyName(column_name,tbl1);
+				boolean delete_rule;
+				if(delete_type.equals("restrict"))
+					delete_rule = false;
+				else
+					delete_rule = true;
+				Referential_Constraint temp_constraint = new Referential_Constraint(tbl1,column,tbl2,delete_rule);
+				list_of_rcs.add(temp_constraint);
+			}
+			
+		} catch (SQLException ex) {
+		    // handle any errors
+		    System.out.println("SQLException: " + ex.getMessage());
+		    System.out.println("SQLState: " + ex.getSQLState());
+		    System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		return list_of_pks;
+		return null;
 		return null;
 	}
 
@@ -188,7 +247,6 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	public ArrayList<Referential_Constraint> findManyToManyRelations(
 			ArrayList<Referential_Constraint> constraints,
 			ArrayList<Class_Details> classes) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

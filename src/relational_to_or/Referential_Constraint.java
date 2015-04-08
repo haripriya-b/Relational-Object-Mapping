@@ -9,12 +9,11 @@ public class Referential_Constraint {
 		
 		public Referential_Constraint(Class_Details tableName,
 				Attribute columnName, Class_Details referencedTableName,
-				boolean onDeleteCascade, Relation_Type type) {
+				boolean onDeleteCascade) {
 			this.tableName = tableName;
 			this.columnName = columnName;
 			this.referencedTableName = referencedTableName;
 			this.onDeleteCascade = onDeleteCascade;
-			this.type = type;
 		}
 		public Class_Details getTableName() {
 			return tableName;

@@ -163,39 +163,54 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
-	public ForeignKeyDetails getFKs() {
+	public ArrayList<Referential_Constraint> getAllConstraints() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ArrayList<RelatedTables> getOneToOneAssociations() {
+	public ArrayList<ManyToMany> getManyToManyRelations(
+			ArrayList<Referential_Constraint> constraints,
+			ArrayList<Class_Details> classes) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ArrayList<RelatedTables> getOneToManyAssociation() {
+	public ArrayList<Referential_Constraint> findManyToManyRelations(
+			ArrayList<Referential_Constraint> constraints,
+			ArrayList<Class_Details> classes) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ArrayList<RelatedTables> getManyToManyAssociation() {
+	public ArrayList<Referential_Constraint> findInheritance(
+			ArrayList<Referential_Constraint> constraints) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ArrayList<InheritedTables> getInheritace() {
+	public ArrayList<Referential_Constraint> findComposition(
+			ArrayList<Referential_Constraint> constraints) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ArrayList<RelatedTables> getComposition() {
+	public ArrayList<Referential_Constraint> findOnetoOne(
+			ArrayList<Referential_Constraint> constraints) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public ArrayList<Referential_Constraint> findOneToMany(
+			ArrayList<Referential_Constraint> constraints) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

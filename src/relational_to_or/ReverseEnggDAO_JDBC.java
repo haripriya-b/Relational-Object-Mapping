@@ -230,17 +230,40 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		    System.out.println("SQLState: " + ex.getSQLState());
 		    System.out.println("VendorError: " + ex.getErrorCode());
 		}
-		return list_of_pks;
-		return null;
-		return null;
+		return list_of_rcs;
 	}
 
 	@Override
 	public ArrayList<ManyToMany> getManyToManyRelations(
 			ArrayList<Referential_Constraint> constraints,
 			ArrayList<Class_Details> classes) {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<ManyToMany> relations = new ArrayList<ManyToMany>();
+		for(int i =0; i<classes.size(); i++) {
+			if(classes.get(i).getPrimaryKeys().size()==2) {
+				ManyToMany new_rel = new ManyToMany();
+				Class_Details table1 = new Class_Details();
+				Class_Details table2 = new Class_Details();
+				boolean table1set = false;
+				for(int j=0; j<constraints.size(); j++) {
+					if((constraints.get(j).tableName).equals(classes.get(i))) {
+						if(!table1set) {
+							table1.setName(constraints.get(j).getReferencedTableName().getName());
+							table1.setPrimaryKeys(constraints.get(j).getReferencedTableName().getPrimaryKeys());
+							table1.setAttributes(constraints.get(j).getReferencedTableName().getAttributes());
+						}
+						else {
+							table2.setName(constraints.get(j).getReferencedTableName().getName());
+							table2.setPrimaryKeys(constraints.get(j).getReferencedTableName().getPrimaryKeys());
+							table2.setAttributes(constraints.get(j).getReferencedTableName().getAttributes());
+						}
+					}
+				}
+				new_rel.setTable1(table1);
+				new_rel.setTable2(table2);
+				relations.add(new_rel);
+			}
+		}
+		return relations;
 	}
 
 	@Override

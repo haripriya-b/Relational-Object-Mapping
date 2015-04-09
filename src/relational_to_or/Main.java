@@ -32,14 +32,19 @@ public class Main {
 				fileNames.add(names.get(i)+".hbm.xml");
 				//System.out.println(fileNames.get(i));
 			}
-			ArrayList<Attribute> a = rdao.getPrimaryKeys("applicant");
+			
+			System.out.println("Primary Keys:");
+			
+			ArrayList<Attribute> a = rdao.getPrimaryKeys("PROFESSOR_COURSE");
 			for(int i=0; i<a.size(); i++) {
 				a.get(i).print();
 			}
 			
 			ArrayList<Class_Details> classes = rdao.getClasses(names);
 			
-			ArrayList<Attribute> a1 = rdao.getAttributes("applicant");
+			System.out.println("Attributes");
+			
+			ArrayList<Attribute> a1 = rdao.getAttributes("PROFESSOR_COURSE");
 			for(int i=0;i<a1.size();i++){
 				a1.get(i).print();
 			}
@@ -59,9 +64,9 @@ public class Main {
 			
 			for(int i=0; i<rdao.getConstraints().size(); i++) {
 				System.out.println("Table name = "+rdao.getConstraints().get(i).getTableName().getName()+
-						"Referenced table name = "+rdao.getConstraints().get(i).getReferencedTableName().getName()+
-						"Column name = "+rdao.getConstraints().get(i).getColumnName().getName()+
-						"Relation Type = "+rdao.getConstraints().get(i).getType());
+						"    Referenced table name = "+rdao.getConstraints().get(i).getReferencedTableName().getName()+
+						"    Column name = "+rdao.getConstraints().get(i).getColumnName().getName()+
+						"    Relation Type = "+rdao.getConstraints().get(i).getType());
 			}
 			
 			dao_Factory.deactivateConnection();

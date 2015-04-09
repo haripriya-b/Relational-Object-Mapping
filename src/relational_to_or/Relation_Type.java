@@ -2,7 +2,7 @@ package relational_to_or;
 
 public enum Relation_Type {
 	ONE_TO_ONE,
-	ONE_TO_MANY,
+	MANY_TO_ONE,
 	INHERITANCE,
 	COMPOSITION,
 	MANY_TO_MANY

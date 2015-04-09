@@ -4,6 +4,8 @@ public class ManyToMany {
 	Class_Details table1;
 	Class_Details table2;
 
+	public ManyToMany(){
+	}
 	public ManyToMany(Class_Details table1, Class_Details table2) {
 		this.table1 = table1;
 		this.table2 = table2;

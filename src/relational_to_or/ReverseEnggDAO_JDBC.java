@@ -216,10 +216,10 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 				Class_Details tbl2 = getClassbyName(referenced_table, classes);
 				Attribute column = getAttributebyName(column_name,tbl1);
 				boolean delete_rule;
-				if(delete_type.equals("restrict"))
-					delete_rule = false;
-				else
+				if(delete_type.equals("CASACDE"))
 					delete_rule = true;
+				else
+					delete_rule = false;
 				Referential_Constraint temp_constraint = new Referential_Constraint(tbl1,column,tbl2,delete_rule);
 				list_of_rcs.add(temp_constraint);
 			}
@@ -270,7 +270,16 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	public ArrayList<Referential_Constraint> findManyToManyRelations(
 			ArrayList<Referential_Constraint> constraints,
 			ArrayList<Class_Details> classes) {
-		return null;
+		for(int i =0; i<classes.size(); i++) {
+			if(classes.get(i).getPrimaryKeys().size()==2) {
+				for(int j=0; j<constraints.size(); j++) {
+					if((constraints.get(j).tableName).equals(classes.get(i))) {
+						constraints.get(j).setType(Relation_Type.MANY_TO_MANY);
+					}
+				}
+			}
+		}
+		return constraints;
 	}
 
 	@Override
@@ -283,22 +292,34 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	@Override
 	public ArrayList<Referential_Constraint> findComposition(
 			ArrayList<Referential_Constraint> constraints) {
-		// TODO Auto-generated method stub
-		return null;
+		for(int i=0; i<constraints.size(); i++) {
+			if(constraints.get(i).isOnDeleteCascade() && constraints.get(i).getType()==null) {
+				constraints.get(i).setType(Relation_Type.COMPOSITION);
+			}
+		}
+		return constraints;
 	}
 
 	@Override
 	public ArrayList<Referential_Constraint> findOnetoOne(
 			ArrayList<Referential_Constraint> constraints) {
-		// TODO Auto-generated method stub
-		return null;
+		for(int i=0; i<constraints.size(); i++) {
+			if(constraints.get(i).getColumnName().isUnique()) {
+				constraints.get(i).setType(Relation_Type.ONE_TO_ONE);
+			}
+		}
+		return constraints;
 	}
 
 	@Override
 	public ArrayList<Referential_Constraint> findOneToMany(
 			ArrayList<Referential_Constraint> constraints) {
-		// TODO Auto-generated method stub
-		return null;
+		for(int i=0; i<constraints.size(); i++) {
+			if(constraints.get(i).getType()==null) {
+				constraints.get(i).setType(Relation_Type.ONE_TO_MANY);
+			}
+		}
+		return constraints;
 	}
 
 

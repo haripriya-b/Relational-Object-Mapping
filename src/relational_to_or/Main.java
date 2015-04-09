@@ -1,5 +1,6 @@
 package relational_to_or;
 
+import java.io.ObjectInputStream.GetField;
 import java.util.*;
 
 public class Main {
@@ -47,6 +48,20 @@ public class Main {
 			for (int i=0;i<names.size();i++) {
 				file = new XMLWriter(classes.get(i),fileNames.get(i));
 				file.createXML();
+			}
+			
+			rdao.getAllConstraints();
+			rdao.findManyToManyRelations(classes);
+			rdao.findInheritance();
+			rdao.findComposition();
+			rdao.findOnetoOne();
+			rdao.findOneToMany();
+			
+			for(int i=0; i<rdao.getConstraints().size(); i++) {
+				System.out.println("Table name = "+rdao.getConstraints().get(i).getTableName().getName()+
+						"Referenced table name = "+rdao.getConstraints().get(i).getReferencedTableName().getName()+
+						"Column name = "+rdao.getConstraints().get(i).getColumnName().getName()+
+						"Relation Type = "+rdao.getConstraints().get(i).getType());
 			}
 			
 			dao_Factory.deactivateConnection();

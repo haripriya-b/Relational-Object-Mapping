@@ -13,10 +13,6 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		return constraints;
 	}
 
-	public void setConstraints(ArrayList<Referential_Constraint> constraints) {
-		this.constraints = constraints;
-	}
-
 	public ReverseEnggDAO_JDBC(Connection dbconnection2, String dbname) {
 		this.dbconnection = dbconnection2;
 		this.dbname = dbname;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public interface ReverseEnggDAO {
+	 ArrayList<Referential_Constraint> getConstraints();
 	 ArrayList<String> getClassNames();
 	 ArrayList<Attribute> getAttributes(String className);
 	 ArrayList<Attribute> getPrimaryKeys(String className);

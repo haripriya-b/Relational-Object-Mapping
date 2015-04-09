@@ -10,11 +10,10 @@ public interface ReverseEnggDAO {
 	 ArrayList<Class_Details> getClasses(ArrayList<String> classNames);
 	 Class_Details getClassbyName(String name, ArrayList<Class_Details> classes);
 	 Attribute getAttributebyName(String name, Class_Details class1);
-	 ArrayList<Referential_Constraint> getAllConstraints();
-	 ArrayList<ManyToMany> getManyToManyRelations(ArrayList<Referential_Constraint> constraints, ArrayList<Class_Details> classes);
-	 ArrayList<Referential_Constraint> findManyToManyRelations(ArrayList<Referential_Constraint> constraints, ArrayList<Class_Details> classes);
-	 ArrayList<Referential_Constraint> findInheritance(ArrayList<Referential_Constraint> constraints);
-	 ArrayList<Referential_Constraint> findComposition(ArrayList<Referential_Constraint> constraints);
-	 ArrayList<Referential_Constraint> findOnetoOne(ArrayList<Referential_Constraint> constraints);
-	 ArrayList<Referential_Constraint> findOneToMany(ArrayList<Referential_Constraint> constraints);
+	 void getAllConstraints();
+	 ArrayList<ManyToMany> findManyToManyRelations(ArrayList<Class_Details> classes);
+	 void findInheritance();
+	 void findComposition();
+	 void findOnetoOne();
+	 void findOneToMany();
 }

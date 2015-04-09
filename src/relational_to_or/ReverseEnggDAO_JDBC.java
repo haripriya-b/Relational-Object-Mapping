@@ -7,6 +7,15 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	
 	Connection dbconnection;
 	String dbname;
+	ArrayList<Referential_Constraint> constraints;
+
+	public ArrayList<Referential_Constraint> getConstraints() {
+		return constraints;
+	}
+
+	public void setConstraints(ArrayList<Referential_Constraint> constraints) {
+		this.constraints = constraints;
+	}
 
 	public ReverseEnggDAO_JDBC(Connection dbconnection2, String dbname) {
 		this.dbconnection = dbconnection2;
@@ -192,7 +201,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
-	public ArrayList<Referential_Constraint> getAllConstraints() {
+	public void getAllConstraints() {
 		String sql;
 		Statement stmt_referentialconstraint1 = null;
 		ArrayList<Referential_Constraint> list_of_rcs= new ArrayList<Referential_Constraint>();
@@ -230,12 +239,11 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		    System.out.println("SQLState: " + ex.getSQLState());
 		    System.out.println("VendorError: " + ex.getErrorCode());
 		}
-		return list_of_rcs;
+		this.constraints = list_of_rcs;
 	}
 
 	@Override
-	public ArrayList<ManyToMany> getManyToManyRelations(
-			ArrayList<Referential_Constraint> constraints,
+	public ArrayList<ManyToMany> findManyToManyRelations(
 			ArrayList<Class_Details> classes) {
 		ArrayList<ManyToMany> relations = new ArrayList<ManyToMany>();
 		for(int i =0; i<classes.size(); i++) {
@@ -246,6 +254,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 				boolean table1set = false;
 				for(int j=0; j<constraints.size(); j++) {
 					if((constraints.get(j).tableName).equals(classes.get(i))) {
+						constraints.get(j).setType(Relation_Type.MANY_TO_MANY);
 						if(!table1set) {
 							table1.setName(constraints.get(j).getReferencedTableName().getName());
 							table1.setPrimaryKeys(constraints.get(j).getReferencedTableName().getPrimaryKeys());
@@ -267,59 +276,41 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
-	public ArrayList<Referential_Constraint> findManyToManyRelations(
-			ArrayList<Referential_Constraint> constraints,
-			ArrayList<Class_Details> classes) {
-		for(int i =0; i<classes.size(); i++) {
-			if(classes.get(i).getPrimaryKeys().size()==2) {
-				for(int j=0; j<constraints.size(); j++) {
-					if((constraints.get(j).tableName).equals(classes.get(i))) {
-						constraints.get(j).setType(Relation_Type.MANY_TO_MANY);
-					}
+	public void findInheritance() {
+		for(int i=0; i<this.constraints.size();i++) {
+			if(this.constraints.get(i).isOnDeleteCascade() && this.constraints.get(i).getType()==null) {
+				if(this.constraints.get(i).getTableName().getPrimaryKeys().get(0).equals(this.constraints.get(i).getColumnName())) {
+					this.constraints.get(i).setType(Relation_Type.INHERITANCE);
 				}
 			}
 		}
-		return constraints;
 	}
 
 	@Override
-	public ArrayList<Referential_Constraint> findInheritance(
-			ArrayList<Referential_Constraint> constraints) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayList<Referential_Constraint> findComposition(
-			ArrayList<Referential_Constraint> constraints) {
-		for(int i=0; i<constraints.size(); i++) {
-			if(constraints.get(i).isOnDeleteCascade() && constraints.get(i).getType()==null) {
-				constraints.get(i).setType(Relation_Type.COMPOSITION);
+	public void findComposition() {
+		for(int i=0; i<this.constraints.size(); i++) {
+			if(this.constraints.get(i).isOnDeleteCascade() && this.constraints.get(i).getType()==null) {
+				this.constraints.get(i).setType(Relation_Type.COMPOSITION);
 			}
 		}
-		return constraints;
 	}
 
 	@Override
-	public ArrayList<Referential_Constraint> findOnetoOne(
-			ArrayList<Referential_Constraint> constraints) {
-		for(int i=0; i<constraints.size(); i++) {
-			if(constraints.get(i).getColumnName().isUnique()) {
-				constraints.get(i).setType(Relation_Type.ONE_TO_ONE);
+	public void findOnetoOne() {
+		for(int i=0; i<this.constraints.size(); i++) {
+			if(this.constraints.get(i).getColumnName().isUnique()) {
+				this.constraints.get(i).setType(Relation_Type.ONE_TO_ONE);
 			}
 		}
-		return constraints;
 	}
 
 	@Override
-	public ArrayList<Referential_Constraint> findOneToMany(
-			ArrayList<Referential_Constraint> constraints) {
-		for(int i=0; i<constraints.size(); i++) {
-			if(constraints.get(i).getType()==null) {
-				constraints.get(i).setType(Relation_Type.ONE_TO_MANY);
+	public void findOneToMany() {
+		for(int i=0; i<this.constraints.size(); i++) {
+			if(this.constraints.get(i).getType()==null) {
+				this.constraints.get(i).setType(Relation_Type.ONE_TO_MANY);
 			}
 		}
-		return constraints;
 	}
 
 

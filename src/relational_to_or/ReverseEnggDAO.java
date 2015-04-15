@@ -1,12 +1,12 @@
 package relational_to_or;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public interface ReverseEnggDAO {
 	 ArrayList<Referential_Constraint> getConstraints();
 	 ArrayList<Class_Details> getClasses();
 	 ArrayList<Class_Relation> getClassRelations();
+	 Class_Relation getClassRelationbyName(String className);
 	 ArrayList<String> getClassNames();
 	 ArrayList<Attribute> getAttributes(String className);
 	 ArrayList<Attribute> getPrimaryKeys(String className);

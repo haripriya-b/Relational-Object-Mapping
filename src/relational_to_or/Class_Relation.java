@@ -21,4 +21,14 @@ public class Class_Relation {
 	public void addRelation(Referential_Constraint relation) {
 		relations.add(relation);
 	}
+	@Override
+	public String toString() {
+		String r = "";
+		for(int i =0; i<relations.size(); i++) {
+			r = r+relations.get(i).toString()+" ";
+		}
+		return "Class_Relation [class_Details=" + class_Details.getName()
+				+ ", relations=" + r + "]";
+	}
+	
 }

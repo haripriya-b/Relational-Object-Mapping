@@ -60,10 +60,9 @@ public class Main {
 			}
 			
 			
-			
-			for(int i=0; i<classes.size(); i++) {
-				for(int j=0; j<classes.get(i).getRelations().size(); j++)
-					System.out.println(classes.get(i).getName()+" "+classes.get(i).getRelations().get(j).toString());
+			ArrayList<Class_Relation> class_Relations = rdao.getClassRelations();
+			for(int i=0; i<class_Relations.size(); i++) {
+				System.out.println(class_Relations.get(i).toString());
 			}
 			
 			dao_Factory.deactivateConnection();

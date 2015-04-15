@@ -2,6 +2,7 @@ package relational_to_or;
 
 import java.util.*;
 import java.sql.*;
+
 import org.apache.commons.lang.StringUtils;
 
 public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
@@ -10,7 +11,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	String dbname;
 	ArrayList<Referential_Constraint> constraints;
 	ArrayList<Class_Details> classes;
-	ArrayList<Class_Relation> class_Relations;
+	ArrayList<Class_Relation> class_Relations = new ArrayList<>();
 
 	public ArrayList<Class_Details> getClasses() {
 		return classes;
@@ -22,6 +23,16 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 
 	public ArrayList<Referential_Constraint> getConstraints() {
 		return constraints;
+	}
+	
+	@Override
+	public Class_Relation getClassRelationbyName(String className) {
+		for(int i=0; i<class_Relations.size(); i++) {
+			if(class_Relations.get(i).getClass_Details().getName().equals(className)) {
+				return class_Relations.get(i);
+			}
+		}
+		return null;
 	}
 
 	public ReverseEnggDAO_JDBC(Connection dbconnection2, String dbname) {
@@ -177,7 +188,6 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		}
 	}
 
-	
 
 	@Override
 	public Class_Details getClassbyName(String name) {
@@ -327,49 +337,73 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		findOnetoOne();
 		findOneToMany();
 		
-		/*for(int i = 0; i<constraints.size(); i++) {
-			System.out.println(constraints.get(i).toString());
+		for(int i=0; i<classes.size(); i++) {
+			Class_Relation cr = new Class_Relation();
+			cr.setClass_Details(classes.get(i));
+			class_Relations.add(cr);
+		}
+		
+		for(int i = 0; i<constraints.size(); i++) {
 			if(constraints.get(i).getType()==Relation_Type.ONE_TO_ONE) {
-				System.out.println("here");
-				Relation relation = new Relation(constraints.get(i).getReferencedTable().getName(),
-						constraints.get(i).getColumn().getName(),Relation_Type.ONE_TO_ONE);
-				constraints.get(i).getTable().addRelation(relation);
+				getClassRelationbyName(constraints.get(i).getTable().getName()).addRelation(constraints.get(i));
 			}
 			else if (constraints.get(i).getType()==Relation_Type.MANY_TO_ONE) {
-				System.out.println("here");
-				Relation relation1 = new Relation(constraints.get(i).getReferencedTable().getName(),
-						constraints.get(i).getColumn().getName(),Relation_Type.MANY_TO_ONE);
-				constraints.get(i).getTable().addRelation(relation1);
-				Relation relation2 = new Relation(constraints.get(i).getTable().getName(),
-						constraints.get(i).getColumn().getName(),Relation_Type.ONE_TO_MANY);
-				constraints.get(i).getReferencedTable().addRelation(relation2);
+				getClassRelationbyName(constraints.get(i).getTable().getName()).addRelation(constraints.get(i));
+				Referential_Constraint newConstraint = new Referential_Constraint();
+				newConstraint.setTable(constraints.get(i).getReferencedTable());
+				newConstraint.setReferencedTable(constraints.get(i).getTable());
+				newConstraint.setColumn(constraints.get(i).getColumn());
+				newConstraint.setOnDeleteCascade(constraints.get(i).isOnDeleteCascade());
+				newConstraint.setType(constraints.get(i).getType());
+				newConstraint.setInverse(true);
+				getClassRelationbyName(constraints.get(i).getReferencedTable().getName()).addRelation(newConstraint);
 			}
 			else if (constraints.get(i).getType()==Relation_Type.MANY_TO_MANY) {
-				System.out.println("here");
 				for(int j=i+1; j<constraints.size(); j++) {
 					if(constraints.get(i).getTable().getName().equals(
 							constraints.get(j).getTable().getName())) {
-						Relation relation1 = new Relation(constraints.get(i).getReferencedTable().getName(),
-								constraints.get(i).getColumn().getName(),Relation_Type.MANY_TO_MANY);
-						constraints.get(j).getReferencedTable().addRelation(relation1);
-						Relation relation2 = new Relation(constraints.get(j).getReferencedTable().getName(),
-								constraints.get(j).getColumn().getName(),Relation_Type.MANY_TO_MANY);
-						constraints.get(i).getReferencedTable().addRelation(relation2);
+						getClassRelationbyName(constraints.get(i).getTable().getName()).addRelation(constraints.get(i));
+						constraints.get(j).setInverse(true);
+						getClassRelationbyName(constraints.get(j).getTable().getName()).addRelation(constraints.get(j));
+						Referential_Constraint newConstraint1 = new Referential_Constraint();
+						newConstraint1.setTable(constraints.get(i).getReferencedTable());
+						newConstraint1.setReferencedTable(constraints.get(i).getTable());
+						newConstraint1.setColumn(constraints.get(i).getColumn());
+						newConstraint1.setOnDeleteCascade(constraints.get(i).isOnDeleteCascade());
+						newConstraint1.setType(constraints.get(i).getType());
+						newConstraint1.setInverse(constraints.get(i).isInverse());
+						getClassRelationbyName(constraints.get(i).getReferencedTable().getName()).addRelation(newConstraint1);
+						Referential_Constraint newConstraint2 = new Referential_Constraint();
+						newConstraint2.setTable(constraints.get(j).getReferencedTable());
+						newConstraint2.setReferencedTable(constraints.get(j).getTable());
+						newConstraint2.setColumn(constraints.get(j).getColumn());
+						newConstraint2.setOnDeleteCascade(constraints.get(j).isOnDeleteCascade());
+						newConstraint2.setType(constraints.get(j).getType());
+						newConstraint2.setInverse(constraints.get(j).isInverse());
+						getClassRelationbyName(constraints.get(j).getReferencedTable().getName()).addRelation(newConstraint2);
 					}
 				}
 			}
 			else if (constraints.get(i).getType()==Relation_Type.COMPOSITION) {
-				System.out.println("here");
-				Relation relation = new Relation(constraints.get(i).getReferencedTable().getName(),
-						constraints.get(i).getColumn().getName(),Relation_Type.COMPOSITION);
-				constraints.get(i).getTable().addRelation(relation);
+				Referential_Constraint newConstraint = new Referential_Constraint();
+				newConstraint.setTable(constraints.get(i).getReferencedTable());
+				newConstraint.setReferencedTable(constraints.get(i).getTable());
+				newConstraint.setColumn(constraints.get(i).getColumn());
+				newConstraint.setOnDeleteCascade(constraints.get(i).isOnDeleteCascade());
+				newConstraint.setType(constraints.get(i).getType());
+				newConstraint.setInverse(constraints.get(i).isInverse());
+				getClassRelationbyName(constraints.get(i).getReferencedTable().getName()).addRelation(newConstraint);
 			}
 			else if(constraints.get(i).getType()==Relation_Type.INHERITANCE) {
-				System.out.println("here");
-				Relation relation = new Relation(constraints.get(i).getReferencedTable().getName(),
-						constraints.get(i).getColumn().getName(),Relation_Type.INHERITANCE);
-				constraints.get(i).getTable().addRelation(relation);
+				Referential_Constraint newConstraint = new Referential_Constraint();
+				newConstraint.setTable(constraints.get(i).getReferencedTable());
+				newConstraint.setReferencedTable(constraints.get(i).getTable());
+				newConstraint.setColumn(constraints.get(i).getColumn());
+				newConstraint.setOnDeleteCascade(constraints.get(i).isOnDeleteCascade());
+				newConstraint.setType(constraints.get(i).getType());
+				newConstraint.setInverse(constraints.get(i).isInverse());
+				getClassRelationbyName(constraints.get(i).getReferencedTable().getName()).addRelation(newConstraint);
 			}
-		}*/
+		}
 	}
 }

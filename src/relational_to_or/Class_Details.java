@@ -25,14 +25,5 @@ public class Class_Details {
 	}
 	public void setAttributes(ArrayList<Attribute> attributes) {
 		this.attributes = attributes;
-	}
-	
-	
-		
-
-
-
-	
-	
-	
+	}	
 }

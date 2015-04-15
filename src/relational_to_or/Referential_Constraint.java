@@ -8,6 +8,7 @@ public class Referential_Constraint {
 		boolean inverse = false;
 		Relation_Type type;
 		
+		public Referential_Constraint(){}
 		public Referential_Constraint(Class_Details table,
 				Attribute column, Class_Details referencedTable,
 				boolean onDeleteCascade) {
@@ -54,8 +55,8 @@ public class Referential_Constraint {
 		}
 		@Override
 		public String toString() {
-			return "Referential_Constraint [table=" + table + ", column="
-					+ column + ", referencedTable=" + referencedTable
+			return "Referential_Constraint [table=" + table.getName() + ", column="
+					+ column.getName() + ", referencedTable=" + referencedTable.getName()
 					+ ", onDeleteCascade=" + onDeleteCascade + ", inverse="
 					+ inverse + ", type=" + type + "]";
 		}

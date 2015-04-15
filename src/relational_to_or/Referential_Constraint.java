@@ -1,37 +1,38 @@
 package relational_to_or;
 
 public class Referential_Constraint {
-		Class_Details tableName;
-		Attribute columnName;
-		Class_Details referencedTableName;
+		Class_Details table;
+		Attribute column;
+		Class_Details referencedTable;
 		boolean onDeleteCascade;
+		boolean inverse = false;
 		Relation_Type type;
 		
-		public Referential_Constraint(Class_Details tableName,
-				Attribute columnName, Class_Details referencedTableName,
+		public Referential_Constraint(Class_Details table,
+				Attribute column, Class_Details referencedTable,
 				boolean onDeleteCascade) {
-			this.tableName = tableName;
-			this.columnName = columnName;
-			this.referencedTableName = referencedTableName;
+			this.table = table;
+			this.column = column;
+			this.referencedTable = referencedTable;
 			this.onDeleteCascade = onDeleteCascade;
 		}
-		public Class_Details getTableName() {
-			return tableName;
+		public Class_Details getTable() {
+			return table;
 		}
-		public void setTableName(Class_Details tableName) {
-			this.tableName = tableName;
+		public void setTable(Class_Details table) {
+			this.table = table;
 		}
-		public Attribute getColumnName() {
-			return columnName;
+		public Attribute getColumn() {
+			return column;
 		}
-		public void setColumnName(Attribute columnName) {
-			this.columnName = columnName;
+		public void setColumn(Attribute column) {
+			this.column = column;
 		}
-		public Class_Details getReferencedTableName() {
-			return referencedTableName;
+		public Class_Details getReferencedTable() {
+			return referencedTable;
 		}
-		public void setReferencedTableName(Class_Details referencedTableName) {
-			this.referencedTableName = referencedTableName;
+		public void setReferencedTable(Class_Details referencedTable) {
+			this.referencedTable = referencedTable;
 		}
 		public boolean isOnDeleteCascade() {
 			return onDeleteCascade;
@@ -39,10 +40,25 @@ public class Referential_Constraint {
 		public void setOnDeleteCascade(boolean onDeleteCascade) {
 			this.onDeleteCascade = onDeleteCascade;
 		}
+		public boolean isInverse() {
+			return inverse;
+		}
+		public void setInverse(boolean inverse) {
+			this.inverse = inverse;
+		}
 		public Relation_Type getType() {
 			return type;
 		}
 		public void setType(Relation_Type type) {
 			this.type = type;
 		}
+		@Override
+		public String toString() {
+			return "Referential_Constraint [table=" + table + ", column="
+					+ column + ", referencedTable=" + referencedTable
+					+ ", onDeleteCascade=" + onDeleteCascade + ", inverse="
+					+ inverse + ", type=" + type + "]";
+		}
+		
+		
 }

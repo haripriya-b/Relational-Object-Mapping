@@ -10,13 +10,14 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	String dbname;
 	ArrayList<Referential_Constraint> constraints;
 	ArrayList<Class_Details> classes;
+	ArrayList<Class_Relation> class_Relations;
 
 	public ArrayList<Class_Details> getClasses() {
 		return classes;
 	}
 
-	public void setClasses(ArrayList<Class_Details> classes) {
-		this.classes = classes;
+	public ArrayList<Class_Relation> getClassRelations() {
+		return class_Relations;
 	}
 
 	public ArrayList<Referential_Constraint> getConstraints() {
@@ -256,17 +257,17 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 				Class_Details table2 = new Class_Details();
 				boolean table1set = false;
 				for(int j=0; j<constraints.size(); j++) {
-					if(StringUtils.equals(constraints.get(j).getTableName().getName(),classes.get(i).getName())) {
+					if(StringUtils.equals(constraints.get(j).getTable().getName(),classes.get(i).getName())) {
 						constraints.get(j).setType(Relation_Type.MANY_TO_MANY);
 						if(!table1set) {
-							table1.setName(constraints.get(j).getReferencedTableName().getName());
-							table1.setPrimaryKeys(constraints.get(j).getReferencedTableName().getPrimaryKeys());
-							table1.setAttributes(constraints.get(j).getReferencedTableName().getAttributes());
+							table1.setName(constraints.get(j).getReferencedTable().getName());
+							table1.setPrimaryKeys(constraints.get(j).getReferencedTable().getPrimaryKeys());
+							table1.setAttributes(constraints.get(j).getReferencedTable().getAttributes());
 						}
 						else {
-							table2.setName(constraints.get(j).getReferencedTableName().getName());
-							table2.setPrimaryKeys(constraints.get(j).getReferencedTableName().getPrimaryKeys());
-							table2.setAttributes(constraints.get(j).getReferencedTableName().getAttributes());
+							table2.setName(constraints.get(j).getReferencedTable().getName());
+							table2.setPrimaryKeys(constraints.get(j).getReferencedTable().getPrimaryKeys());
+							table2.setAttributes(constraints.get(j).getReferencedTable().getAttributes());
 						}
 					}
 				}
@@ -282,7 +283,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	public void findInheritance() {
 		for(int i=0; i<this.constraints.size();i++) {
 			if(this.constraints.get(i).isOnDeleteCascade() && this.constraints.get(i).getType()==null) {
-				if(this.constraints.get(i).getTableName().getPrimaryKeys().get(0).equals(this.constraints.get(i).getColumnName())) {
+				if(this.constraints.get(i).getTable().getPrimaryKeys().get(0).equals(this.constraints.get(i).getColumn())) {
 					this.constraints.get(i).setType(Relation_Type.INHERITANCE);
 				}
 			}
@@ -301,7 +302,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	@Override
 	public void findOnetoOne() {
 		for(int i=0; i<this.constraints.size(); i++) {
-			if(this.constraints.get(i).getColumnName().isUnique() && this.constraints.get(i).getType()==null) {
+			if(this.constraints.get(i).getColumn().isUnique() && this.constraints.get(i).getType()==null) {
 				this.constraints.get(i).setType(Relation_Type.ONE_TO_ONE);
 			}
 		}
@@ -326,7 +327,49 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		findOnetoOne();
 		findOneToMany();
 		
+		/*for(int i = 0; i<constraints.size(); i++) {
+			System.out.println(constraints.get(i).toString());
+			if(constraints.get(i).getType()==Relation_Type.ONE_TO_ONE) {
+				System.out.println("here");
+				Relation relation = new Relation(constraints.get(i).getReferencedTable().getName(),
+						constraints.get(i).getColumn().getName(),Relation_Type.ONE_TO_ONE);
+				constraints.get(i).getTable().addRelation(relation);
+			}
+			else if (constraints.get(i).getType()==Relation_Type.MANY_TO_ONE) {
+				System.out.println("here");
+				Relation relation1 = new Relation(constraints.get(i).getReferencedTable().getName(),
+						constraints.get(i).getColumn().getName(),Relation_Type.MANY_TO_ONE);
+				constraints.get(i).getTable().addRelation(relation1);
+				Relation relation2 = new Relation(constraints.get(i).getTable().getName(),
+						constraints.get(i).getColumn().getName(),Relation_Type.ONE_TO_MANY);
+				constraints.get(i).getReferencedTable().addRelation(relation2);
+			}
+			else if (constraints.get(i).getType()==Relation_Type.MANY_TO_MANY) {
+				System.out.println("here");
+				for(int j=i+1; j<constraints.size(); j++) {
+					if(constraints.get(i).getTable().getName().equals(
+							constraints.get(j).getTable().getName())) {
+						Relation relation1 = new Relation(constraints.get(i).getReferencedTable().getName(),
+								constraints.get(i).getColumn().getName(),Relation_Type.MANY_TO_MANY);
+						constraints.get(j).getReferencedTable().addRelation(relation1);
+						Relation relation2 = new Relation(constraints.get(j).getReferencedTable().getName(),
+								constraints.get(j).getColumn().getName(),Relation_Type.MANY_TO_MANY);
+						constraints.get(i).getReferencedTable().addRelation(relation2);
+					}
+				}
+			}
+			else if (constraints.get(i).getType()==Relation_Type.COMPOSITION) {
+				System.out.println("here");
+				Relation relation = new Relation(constraints.get(i).getReferencedTable().getName(),
+						constraints.get(i).getColumn().getName(),Relation_Type.COMPOSITION);
+				constraints.get(i).getTable().addRelation(relation);
+			}
+			else if(constraints.get(i).getType()==Relation_Type.INHERITANCE) {
+				System.out.println("here");
+				Relation relation = new Relation(constraints.get(i).getReferencedTable().getName(),
+						constraints.get(i).getColumn().getName(),Relation_Type.INHERITANCE);
+				constraints.get(i).getTable().addRelation(relation);
+			}
+		}*/
 	}
-
-
 }

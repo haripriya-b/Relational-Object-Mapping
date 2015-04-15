@@ -61,11 +61,9 @@ public class Main {
 			
 			
 			
-			for(int i=0; i<rdao.getConstraints().size(); i++) {
-				System.out.println("Table name = "+rdao.getConstraints().get(i).getTableName().getName()+
-						"    Referenced table name = "+rdao.getConstraints().get(i).getReferencedTableName().getName()+
-						"    Column name = "+rdao.getConstraints().get(i).getColumnName().getName()+
-						"    Relation Type = "+rdao.getConstraints().get(i).getType());
+			for(int i=0; i<classes.size(); i++) {
+				for(int j=0; j<classes.get(i).getRelations().size(); j++)
+					System.out.println(classes.get(i).getName()+" "+classes.get(i).getRelations().get(j).toString());
 			}
 			
 			dao_Factory.deactivateConnection();

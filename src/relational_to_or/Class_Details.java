@@ -15,6 +15,9 @@ public class Class_Details {
 	public void setRelations(ArrayList<Relation> relations) {
 		this.relations = relations;
 	}
+	public void addRelation(Relation relation) {
+		this.relations.add(relation);
+	}
 	public String getName() {
 		return name;
 	}

@@ -7,6 +7,14 @@ public class Class_Details {
 	String name;
 	ArrayList<Attribute> primaryKeys;
 	ArrayList<Attribute> attributes;
+	ArrayList<Relation> relations;
+	
+	public ArrayList<Relation> getRelations() {
+		return relations;
+	}
+	public void setRelations(ArrayList<Relation> relations) {
+		this.relations = relations;
+	}
 	public String getName() {
 		return name;
 	}

@@ -9,6 +9,15 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	Connection dbconnection;
 	String dbname;
 	ArrayList<Referential_Constraint> constraints;
+	ArrayList<Class_Details> classes;
+
+	public ArrayList<Class_Details> getClasses() {
+		return classes;
+	}
+
+	public void setClasses(ArrayList<Class_Details> classes) {
+		this.classes = classes;
+	}
 
 	public ArrayList<Referential_Constraint> getConstraints() {
 		return constraints;
@@ -156,8 +165,8 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
-	public ArrayList<Class_Details> getClasses(ArrayList<String> classNames) {
-		ArrayList<Class_Details> classes = new ArrayList<Class_Details>();
+	public void generateClasses(ArrayList<String> classNames) {
+		classes = new ArrayList<Class_Details>();
 		for(int i=0; i<classNames.size(); i++) {
 			Class_Details c = new Class_Details();
 			c.setName(classNames.get(i));
@@ -165,14 +174,12 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 			c.setPrimaryKeys(getPrimaryKeys(classNames.get(i)));
 			classes.add(c);
 		}
-		return classes;
 	}
 
 	
 
 	@Override
-	public Class_Details getClassbyName(String name,
-			ArrayList<Class_Details> classes) {
+	public Class_Details getClassbyName(String name) {
 			for(int i=0; i<classes.size(); i++)
 			{
 				if( classes.get(i).getName().equals(name) )
@@ -217,9 +224,9 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 				String referenced_table = rs_referentialconstraint1.getString("key_column_usage.referenced_table_name");
 				String delete_type = rs_referentialconstraint1.getString("referential_constraints.delete_rule");
 				ArrayList<String> class_names = getClassNames();
-				ArrayList<Class_Details> classes = getClasses(class_names);
-				Class_Details tbl1 = getClassbyName(table_name,classes);
-				Class_Details tbl2 = getClassbyName(referenced_table, classes);
+				generateClasses(class_names);
+				Class_Details tbl1 = getClassbyName(table_name);
+				Class_Details tbl2 = getClassbyName(referenced_table);
 				Attribute column = getAttributebyName(column_name,tbl1);
 				boolean delete_rule;
 				if(delete_type.equals("CASCADE"))
@@ -240,8 +247,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
-	public ArrayList<ManyToMany> findManyToManyRelations(
-			ArrayList<Class_Details> classes) {
+	public ArrayList<ManyToMany> findManyToManyRelations() {
 		ArrayList<ManyToMany> relations = new ArrayList<ManyToMany>();
 		for(int i =0; i<classes.size(); i++) {
 			if(classes.get(i).getPrimaryKeys().size()==2) {
@@ -308,6 +314,18 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 				this.constraints.get(i).setType(Relation_Type.MANY_TO_ONE);
 			}
 		}
+	}
+	
+	@Override
+	public void getAllRelations() {
+		
+		getAllConstraints();
+		findManyToManyRelations();
+		findInheritance();
+		findComposition();
+		findOnetoOne();
+		findOneToMany();
+		
 	}
 
 

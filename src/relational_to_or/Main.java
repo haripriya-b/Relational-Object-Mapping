@@ -29,11 +29,11 @@ public class Main {
 			
 			ArrayList<String> fileNames = new ArrayList<String>();
 			for (int i=0;i<names.size();i++) {
-				fileNames.add(names.get(i)+".hbm.xml");
+				fileNames.add(names.get(i).toLowerCase()+".hbm.xml");
 				//System.out.println(fileNames.get(i));
 			}
 			
-			System.out.println("Primary Keys:");
+			/*System.out.println("Primary Keys:");
 			
 			ArrayList<Attribute> a = rdao.getPrimaryKeys("PROFESSOR_COURSE");
 			for(int i=0; i<a.size(); i++) {
@@ -47,7 +47,11 @@ public class Main {
 			ArrayList<Attribute> a1 = rdao.getAttributes("PROFESSOR_COURSE");
 			for(int i=0;i<a1.size();i++){
 				a1.get(i).print();
-			}
+			}*/
+			
+			rdao.getAllRelations();
+			
+			ArrayList<Class_Details> classes = rdao.getClasses();
 			
 			XMLWriter file;
 			for (int i=0;i<names.size();i++) {
@@ -55,12 +59,7 @@ public class Main {
 				file.createXML();
 			}
 			
-			rdao.getAllConstraints();
-			rdao.findManyToManyRelations(classes);
-			rdao.findInheritance();
-			rdao.findComposition();
-			rdao.findOnetoOne();
-			rdao.findOneToMany();
+			
 			
 			for(int i=0; i<rdao.getConstraints().size(); i++) {
 				System.out.println("Table name = "+rdao.getConstraints().get(i).getTableName().getName()+

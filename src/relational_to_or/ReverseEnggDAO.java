@@ -5,16 +5,20 @@ import java.util.Map;
 
 public interface ReverseEnggDAO {
 	 ArrayList<Referential_Constraint> getConstraints();
+	 ArrayList<Class_Details> getClasses();
+	 void setClasses(ArrayList<Class_Details> classes);
 	 ArrayList<String> getClassNames();
 	 ArrayList<Attribute> getAttributes(String className);
 	 ArrayList<Attribute> getPrimaryKeys(String className);
-	 ArrayList<Class_Details> getClasses(ArrayList<String> classNames);
-	 Class_Details getClassbyName(String name, ArrayList<Class_Details> classes);
+	 void generateClasses(ArrayList<String> classNames);
+	 Class_Details getClassbyName(String name);
 	 Attribute getAttributebyName(String name, Class_Details class1);
 	 void getAllConstraints();
-	 ArrayList<ManyToMany> findManyToManyRelations(ArrayList<Class_Details> classes);
+	 ArrayList<ManyToMany> findManyToManyRelations();
 	 void findInheritance();
 	 void findComposition();
 	 void findOnetoOne();
 	 void findOneToMany();
+	 void getAllRelations();
+	 
 }

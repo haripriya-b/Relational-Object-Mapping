@@ -70,10 +70,11 @@ public class XMLWriter {
 		Element classElement = doc.createElement("class");
 		rootElement.appendChild(classElement);
 		classElement.setAttribute("name", c.getName());
-		classElement.setAttribute("column", c.getName());
+		classElement.setAttribute("table", c.getName());
 		
 		addPrimaryKeys(classElement);
 		addAttributes(classElement);
+		addRelationships(classElement);
 	}
 	
 	private void addPrimaryKeys(Element classElement) {
@@ -111,6 +112,11 @@ public class XMLWriter {
 			propElement.setAttribute("unique", Boolean.toString(attributes.get(i).isUnique()));
 			propElement.setAttribute("not-null", Boolean.toString(!attributes.get(i).isNullable()));
 		}
+	}
+	
+	private void addRelationships(Element classElement) {
+		//for(int i=0; i<.size(); i++) {
+			//check for type of relationship
 	}
 }
 

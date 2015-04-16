@@ -14,7 +14,7 @@ public interface ReverseEnggDAO {
 	 Class_Details getClassbyName(String name);
 	 Attribute getAttributebyName(String name, Class_Details class1);
 	 void getAllConstraints();
-	 ArrayList<ManyToMany> findManyToManyRelations();
+	 void findManyToManyRelations();
 	 void findInheritance();
 	 void findComposition();
 	 void findOnetoOne();

@@ -394,6 +394,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 				}
 			}
 			else if (constraints.get(i).getType()==Relation_Type.COMPOSITION) {
+				getClassRelationbyName(constraints.get(i).getTable().getName()).addRelation(constraints.get(i));
 				Referential_Constraint newConstraint = new Referential_Constraint();
 				newConstraint.setTable(constraints.get(i).getReferencedTable());
 				newConstraint.setReferencedTable(constraints.get(i).getTable());

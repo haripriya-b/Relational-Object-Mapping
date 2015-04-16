@@ -77,7 +77,7 @@ public class XMLWriter {
 		//creating class element and its attributes
 		Element classElement = doc.createElement("class");
 		rootElement.appendChild(classElement);
-		String refTable = c.getName().substring(0, 1) + c.getName().substring(1, c.getName().length()).toLowerCase();
+		String refTable = c.getName().substring(0, 1).toUpperCase() + c.getName().substring(1, c.getName().length()).toLowerCase();
 		classElement.setAttribute("name", refTable);
 		classElement.setAttribute("table", c.getName());
 		
@@ -92,7 +92,7 @@ public class XMLWriter {
 		if(primaryKeys.size()==1) {
 			Element idElement = doc.createElement("id");
 			classElement.appendChild(idElement);
-			idElement.setAttribute("name", primaryKeys.get(0).getName());
+			idElement.setAttribute("name", primaryKeys.get(0).getName().toLowerCase());
 			idElement.setAttribute("column", primaryKeys.get(0).getName());
 			idElement.setAttribute("type", primaryKeys.get(0).getType());
 	    }
@@ -102,7 +102,7 @@ public class XMLWriter {
 			for(int i=0; i<primaryKeys.size(); i++) {
 				Element keyElement = doc.createElement("key-property");
 				idElement.appendChild(keyElement);
-			    keyElement.setAttribute("name", primaryKeys.get(i).getName());
+			    keyElement.setAttribute("name", primaryKeys.get(i).getName().toLowerCase());
 				keyElement.setAttribute("column", primaryKeys.get(i).getName());
 				keyElement.setAttribute("type", primaryKeys.get(i).getType());
 		    }
@@ -146,6 +146,8 @@ public class XMLWriter {
 					classElement.appendChild(relElement);
 					relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
 					relElement.setAttribute("unique", "true");
+					String refTable = relation.getTable().getName().substring(0, 1).toUpperCase() + relation.getTable().getName().substring(1, relation.getTable().getName().length()).toLowerCase();
+					relElement.setAttribute("class", refTable);
 					relElement.setAttribute("cascade", "all");
 					relElement.setAttribute("column", relation.getColumn().getName());
 				}
@@ -157,7 +159,7 @@ public class XMLWriter {
 					Element relElement = doc.createElement("many-to-one");
 					classElement.appendChild(relElement);
 					relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
-					String refTable = relation.getReferencedTable().getName().substring(0, 1) + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
+					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
 					relElement.setAttribute("class", refTable);
 					relElement.setAttribute("column", relation.getColumn().getName());
 					relElement.setAttribute("not-null", "true");
@@ -176,7 +178,7 @@ public class XMLWriter {
 					
 					Element relElement = doc.createElement("one-to-many");
 					setElement.appendChild(relElement);
-					String refTable = relation.getReferencedTable().getName().substring(0, 1) + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
+					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
 					relElement.setAttribute("class", refTable);
 				}
 				
@@ -212,7 +214,7 @@ public class XMLWriter {
 					Element relElement = doc.createElement("many-to-many");
 					setElement.appendChild(relElement);
 					relElement.setAttribute("column", refTable.getPrimaryKeys().get(0).getName());
-					String ref = refTable.getName().substring(0, 1) + refTable.getName().substring(1, refTable.getName().length()).toLowerCase();
+					String ref = refTable.getName().substring(0, 1).toUpperCase() + refTable.getName().substring(1, refTable.getName().length()).toLowerCase();
 					relElement.setAttribute("class", ref);
 					
 				}

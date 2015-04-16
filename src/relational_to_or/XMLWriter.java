@@ -61,7 +61,7 @@ public class XMLWriter {
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File("/home/haripriya/workspace/ReverseEngg/src/reverse", file_name));
+			StreamResult result = new StreamResult(new File("/home/anusha/Data Modeling/RelationalToOR/src/generated_xmls", file_name).getPath());
 			transformer.transform(source, result);
 		}
 		catch(TransformerException tfe) {
@@ -180,11 +180,10 @@ public class XMLWriter {
 							joinTable = class_Relations.get(j);
 					}
 					
-					if (joinTable.getRelations().get(0).getReferencedTable().getName().equals(relation.getClass().getName())) {
+					if (joinTable.getRelations().get(0).getReferencedTable().getName().equals(relation.getTable().getName())) {
 						refTable = joinTable.getRelations().get(1).getReferencedTable();
 					}else {
 						refTable = joinTable.getRelations().get(0).getReferencedTable();
-						
 					}
 					
 					Element setElement = doc.createElement("set");

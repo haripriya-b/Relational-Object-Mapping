@@ -259,35 +259,16 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
-	public ArrayList<ManyToMany> findManyToManyRelations() {
-		ArrayList<ManyToMany> relations = new ArrayList<ManyToMany>();
+	public void findManyToManyRelations() {
 		for(int i =0; i<classes.size(); i++) {
 			if(classes.get(i).getPrimaryKeys().size()==2) {
-				ManyToMany new_rel = new ManyToMany();
-				Class_Details table1 = new Class_Details();
-				Class_Details table2 = new Class_Details();
-				boolean table1set = false;
 				for(int j=0; j<constraints.size(); j++) {
 					if(StringUtils.equals(constraints.get(j).getTable().getName(),classes.get(i).getName())) {
 						constraints.get(j).setType(Relation_Type.MANY_TO_MANY);
-						if(!table1set) {
-							table1.setName(constraints.get(j).getReferencedTable().getName());
-							table1.setPrimaryKeys(constraints.get(j).getReferencedTable().getPrimaryKeys());
-							table1.setAttributes(constraints.get(j).getReferencedTable().getAttributes());
-						}
-						else {
-							table2.setName(constraints.get(j).getReferencedTable().getName());
-							table2.setPrimaryKeys(constraints.get(j).getReferencedTable().getPrimaryKeys());
-							table2.setAttributes(constraints.get(j).getReferencedTable().getAttributes());
-						}
 					}
 				}
-				new_rel.setTable1(table1);
-				new_rel.setTable2(table2);
-				relations.add(new_rel);
 			}
 		}
-		return relations;
 	}
 
 	@Override

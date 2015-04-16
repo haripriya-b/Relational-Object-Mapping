@@ -61,7 +61,7 @@ public class XMLWriter {
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File("/home/anusha/Data Modeling/RelationalToOR/src/generated_xmls", file_name).getPath());
+			StreamResult result = new StreamResult(new File("/home/haripriya/workspace/ReverseEngg/src/reverse", file_name).getPath());
 			transformer.transform(source, result);
 		}
 		catch(TransformerException tfe) {
@@ -135,11 +135,21 @@ public class XMLWriter {
 			Referential_Constraint relation = relations.get(i);
 			
 			if (relation.getType() == Relation_Type.ONE_TO_ONE) {
-				Element relElement = doc.createElement("many-to-one");
-				classElement.appendChild(relElement);
-				relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
-				relElement.setAttribute("unique", "true");
-				relElement.setAttribute("cascade", "all");
+				
+				if(relation.isInverse() == true) {
+					Element relElement = doc.createElement("one-to-one");
+					classElement.appendChild(relElement);
+					relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
+					relElement.setAttribute("property-ref", relation.getTable().getName().toLowerCase());
+				}else {
+					Element relElement = doc.createElement("many-to-one");
+					classElement.appendChild(relElement);
+					relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
+					relElement.setAttribute("unique", "true");
+					relElement.setAttribute("cascade", "all");
+					relElement.setAttribute("column", relation.getColumn().getName());
+				}
+					
 				
 				
 			}else if (relation.getType() == Relation_Type.MANY_TO_ONE) {
@@ -255,7 +265,7 @@ public class XMLWriter {
 				relElement.setAttribute("class", ref);
 				
 				composite.addAttributes(relElement);
-				composite.addRelationships(relElement);
+				//composite.addRelationships(relElement);
 				
 			}
 		}

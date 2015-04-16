@@ -22,10 +22,12 @@ public class XMLWriter {
 	Class_Details c;
 	String file_name;
 	Document doc;
+	ArrayList<Class_Relation> class_Relations;
 	
-	public XMLWriter(Class_Details c, String file_name) {
+	public XMLWriter(Class_Details c, String file_name, ArrayList<Class_Relation> class_Relations) {
 		this.c = c;
 		this.file_name = file_name;
+		this.class_Relations = class_Relations;
 		Document doc = null;
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -36,6 +38,12 @@ public class XMLWriter {
 		catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
 		}
+		this.doc = doc;
+	}
+	
+	public XMLWriter (Class_Details c, ArrayList<Class_Relation> class_Relations, Document doc) {
+		this.c = c;
+		this.class_Relations = class_Relations;
 		this.doc = doc;
 	}
 	
@@ -69,7 +77,8 @@ public class XMLWriter {
 		//creating class element and its attributes
 		Element classElement = doc.createElement("class");
 		rootElement.appendChild(classElement);
-		classElement.setAttribute("name", c.getName());
+		String refTable = c.getName().substring(0, 1) + c.getName().substring(1, c.getName().length()).toLowerCase();
+		classElement.setAttribute("name", refTable);
 		classElement.setAttribute("table", c.getName());
 		
 		addPrimaryKeys(classElement);
@@ -106,7 +115,7 @@ public class XMLWriter {
 		for(int i=0; i<attributes.size(); i++) {
 			Element propElement = doc.createElement("property");
 			classElement.appendChild(propElement);
-			propElement.setAttribute("name", attributes.get(i).getName());
+			propElement.setAttribute("name", attributes.get(i).getName().toLowerCase());
 			propElement.setAttribute("column", attributes.get(i).getName());
 			propElement.setAttribute("type", attributes.get(i).getType());
 			propElement.setAttribute("unique", Boolean.toString(attributes.get(i).isUnique()));
@@ -115,8 +124,140 @@ public class XMLWriter {
 	}
 	
 	private void addRelationships(Element classElement) {
-		//for(int i=0; i<.size(); i++) {
-			//check for type of relationship
+		Class_Relation rel = new Class_Relation();
+		for(int i=0;i<class_Relations.size();i++) {
+			if (class_Relations.get(i).getClass_Details().getName() == c.getName())
+				rel = class_Relations.get(i);
+		}
+		
+		ArrayList<Referential_Constraint> relations = rel.getRelations();
+		for (int i=0;i<relations.size();i++) {
+			Referential_Constraint relation = relations.get(i);
+			
+			if (relation.getType() == Relation_Type.ONE_TO_ONE) {
+				Element relElement = doc.createElement("many-to-one");
+				classElement.appendChild(relElement);
+				relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
+				relElement.setAttribute("unique", "true");
+				relElement.setAttribute("cascade", "all");
+				
+				
+			}else if (relation.getType() == Relation_Type.MANY_TO_ONE) {
+				if (relation.isInverse() == false) {
+					Element relElement = doc.createElement("many-to-one");
+					classElement.appendChild(relElement);
+					relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
+					String refTable = relation.getReferencedTable().getName().substring(0, 1) + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
+					relElement.setAttribute("class", refTable);
+					relElement.setAttribute("column", relation.getColumn().getName());
+					relElement.setAttribute("not-null", "true");
+					
+				}else if (relation.isInverse() == true) {
+					Element setElement = doc.createElement("set");
+					classElement.appendChild(setElement);
+					setElement.setAttribute("name" , relation.getReferencedTable().getName().toLowerCase());
+					setElement.setAttribute("inverse", "true");
+					setElement.setAttribute("cascade", "all");
+					
+					Element keyElement = doc.createElement("key");
+					setElement.appendChild(keyElement);
+					keyElement.setAttribute("column", relation.getColumn().getName());
+					keyElement.setAttribute("not-null", "true");
+					
+					Element relElement = doc.createElement("one-to-many");
+					setElement.appendChild(relElement);
+					String refTable = relation.getReferencedTable().getName().substring(0, 1) + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
+					relElement.setAttribute("class", refTable);
+				}
+				
+			}else if (relation.getType() == Relation_Type.MANY_TO_MANY) {
+				
+				if(relation.getTable().getPrimaryKeys().size() != 2) {
+					Class_Relation joinTable = null;
+					Class_Details refTable = null;
+					for(int j=0;j<class_Relations.size();j++) {
+						if (class_Relations.get(j).getClass_Details().getName().equals(relation.getReferencedTable().getName().toString()))
+							joinTable = class_Relations.get(j);
+					}
+					
+					if (joinTable.getRelations().get(0).getReferencedTable().getName() != relation.getClass().getName()) {
+						refTable = joinTable.getRelations().get(0).getReferencedTable();
+					}else {
+						refTable = joinTable.getRelations().get(1).getReferencedTable();
+					}
+					
+					Element setElement = doc.createElement("set");
+					classElement.appendChild(setElement);
+					setElement.setAttribute("name", refTable.getName().toLowerCase());
+					setElement.setAttribute("table", joinTable.getClass_Details().getName());
+					
+					if(relation.isInverse() == true) 
+						setElement.setAttribute("inverse", "true");
+					
+					Element keyElement = doc.createElement("key");
+					setElement.appendChild(keyElement);
+					keyElement.setAttribute("column", relation.getTable().getPrimaryKeys().get(0).getName());
+					
+					Element relElement = doc.createElement("many-to-many");
+					setElement.appendChild(relElement);
+					relElement.setAttribute("column", refTable.getPrimaryKeys().get(0).getName());
+					String ref = refTable.getName().substring(0, 1) + refTable.getName().substring(1, refTable.getName().length()).toLowerCase();
+					relElement.setAttribute("class", ref);
+					
+				}
+			}else if (relation.getType() == Relation_Type.INHERITANCE) {
+				
+				Class_Relation subClass = new Class_Relation();
+				for (int j=0;j<class_Relations.size();j++) {
+					if(relation.getReferencedTable().getName().equals(class_Relations.get(j).getClass_Details().getName())) 
+						subClass = class_Relations.get(j);
+				}
+				
+				XMLWriter sub = new XMLWriter(subClass.getClass_Details(), class_Relations,this.doc);
+				
+				Element subClassElement = doc.createElement("joined-subclass");
+				classElement.appendChild(subClassElement);
+				subClassElement.setAttribute("name", subClass.getClass_Details().getName().toLowerCase());
+				subClassElement.setAttribute("table", subClass.getClass_Details().getName());
+				
+				Element keyElement = doc.createElement("key");
+				subClassElement.appendChild(keyElement);
+				keyElement.setAttribute("column", subClass.getClass_Details().getPrimaryKeys().get(0).getName());
+				
+				sub.addAttributes(subClassElement);
+				sub.addRelationships(subClassElement);
+				
+				
+			}else if (relation.getType() == Relation_Type.COMPOSITION) {
+				
+				Class_Relation compositeClass = new Class_Relation();
+				for (int j=0;j<class_Relations.size();j++) {
+					if(relation.getReferencedTable().getName().equals(class_Relations.get(j).getClass_Details().getName())) 
+						compositeClass = class_Relations.get(j);
+				}
+				
+				XMLWriter composite = new XMLWriter(compositeClass.getClass_Details(), class_Relations,this.doc);
+				
+				Element setElement = doc.createElement("set");
+				classElement.appendChild(setElement);
+				setElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
+				setElement.setAttribute("table", relation.getReferencedTable().getName());
+				setElement.setAttribute("lazy", "true");
+				
+				Element keyElement = doc.createElement("key");
+				setElement.appendChild(keyElement);
+				keyElement.setAttribute("column", relation.getTable().getPrimaryKeys().get(0).getName());
+				 
+				Element relElement = doc.createElement("composite-element");
+				setElement.appendChild(relElement);
+				String ref = compositeClass.getClass_Details().getName().substring(0, 1) + compositeClass.getClass_Details().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
+				relElement.setAttribute("class", ref);
+				
+				composite.addAttributes(relElement);
+				composite.addRelationships(relElement);
+				
+			}
+		}
 	}
 }
 

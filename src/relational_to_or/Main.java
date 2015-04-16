@@ -1,6 +1,5 @@
 package relational_to_or;
 
-import java.io.ObjectInputStream.GetField;
 import java.util.*;
 
 public class Main {
@@ -29,7 +28,7 @@ public class Main {
 			
 			ArrayList<String> fileNames = new ArrayList<String>();
 			for (int i=0;i<names.size();i++) {
-				fileNames.add(names.get(i).toLowerCase()+".hbm.xml");
+				fileNames.add(names.get(i).toLowerCase() + ".hbm.xml");
 				//System.out.println(fileNames.get(i));
 			}
 			
@@ -53,16 +52,16 @@ public class Main {
 			
 			ArrayList<Class_Details> classes = rdao.getClasses();
 			
-			XMLWriter file;
-			for (int i=0;i<names.size();i++) {
-				file = new XMLWriter(classes.get(i),fileNames.get(i));
-				file.createXML();
-			}
-			
 			
 			ArrayList<Class_Relation> class_Relations = rdao.getClassRelations();
 			for(int i=0; i<class_Relations.size(); i++) {
 				System.out.println(class_Relations.get(i).toString());
+			}
+			
+			XMLWriter file;
+			for (int i=0;i<names.size();i++) {
+				file = new XMLWriter(classes.get(i),fileNames.get(i),class_Relations);
+				file.createXML();
 			}
 			
 			dao_Factory.deactivateConnection();

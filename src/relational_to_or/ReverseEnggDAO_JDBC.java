@@ -346,6 +346,14 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		for(int i = 0; i<constraints.size(); i++) {
 			if(constraints.get(i).getType()==Relation_Type.ONE_TO_ONE) {
 				getClassRelationbyName(constraints.get(i).getTable().getName()).addRelation(constraints.get(i));
+				Referential_Constraint newConstraint = new Referential_Constraint();
+				newConstraint.setTable(constraints.get(i).getReferencedTable());
+				newConstraint.setReferencedTable(constraints.get(i).getTable());
+				newConstraint.setColumn(constraints.get(i).getColumn());
+				newConstraint.setOnDeleteCascade(constraints.get(i).isOnDeleteCascade());
+				newConstraint.setType(constraints.get(i).getType());
+				newConstraint.setInverse(true);
+				getClassRelationbyName(constraints.get(i).getReferencedTable().getName()).addRelation(newConstraint);
 			}
 			else if (constraints.get(i).getType()==Relation_Type.MANY_TO_ONE) {
 				getClassRelationbyName(constraints.get(i).getTable().getName()).addRelation(constraints.get(i));

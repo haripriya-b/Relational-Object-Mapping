@@ -143,7 +143,7 @@ public class XMLWriter {
 					relElement.setAttribute("unique", "true");
 					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
 					relElement.setAttribute("class", refTable);
-					relElement.setAttribute("cascade", "all");
+					//relElement.setAttribute("cascade", "all");
 					relElement.setAttribute("not-null", "true");
 					relElement.setAttribute("column", relation.getColumn().getName());
 				}else {
@@ -165,19 +165,19 @@ public class XMLWriter {
 					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
 					relElement.setAttribute("class", refTable);
 					relElement.setAttribute("column", relation.getColumn().getName());
-					relElement.setAttribute("not-null", "true");
+					//relElement.setAttribute("not-null", "true");
 					
 				}else if (relation.isInverse() == true) {
 					Element setElement = doc.createElement("set");
 					classElement.appendChild(setElement);
 					setElement.setAttribute("name" , relation.getReferencedTable().getName().toLowerCase());
 					setElement.setAttribute("inverse", "true");
-					setElement.setAttribute("cascade", "all");
+					//setElement.setAttribute("cascade", "all");
 					
 					Element keyElement = doc.createElement("key");
 					setElement.appendChild(keyElement);
 					keyElement.setAttribute("column", relation.getColumn().getName());
-					keyElement.setAttribute("not-null", "true");
+					//keyElement.setAttribute("not-null", "true");
 					
 					Element relElement = doc.createElement("one-to-many");
 					setElement.appendChild(relElement);
@@ -244,6 +244,38 @@ public class XMLWriter {
 				
 				
 			}else if (relation.getType() == Relation_Type.COMPOSITION) {
+				if (relation.isInverse() == false) {
+					Element relElement = doc.createElement("many-to-one");
+					classElement.appendChild(relElement);
+					relElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
+					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
+					relElement.setAttribute("class", refTable);
+					relElement.setAttribute("column", relation.getColumn().getName());
+					relElement.setAttribute("not-null", "true");
+					
+				}else if (relation.isInverse() == true) {
+					Element setElement = doc.createElement("set");
+					classElement.appendChild(setElement);
+					setElement.setAttribute("name" , relation.getReferencedTable().getName().toLowerCase());
+					setElement.setAttribute("inverse", "true");
+					setElement.setAttribute("cascade", "all");
+					
+					Element keyElement = doc.createElement("key");
+					setElement.appendChild(keyElement);
+					keyElement.setAttribute("column", relation.getColumn().getName());
+					keyElement.setAttribute("not-null", "true");
+					
+					Element relElement = doc.createElement("one-to-many");
+					setElement.appendChild(relElement);
+					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
+					relElement.setAttribute("class", refTable);
+				}
+				
+			
+			
+			
+			
+			/*else if (relation.getType() == Relation_Type.COMPOSITION) {
 				
 				Class_Relation compositeClass = new Class_Relation();
 				for (int j=0;j<class_Relations.size();j++) {
@@ -271,6 +303,7 @@ public class XMLWriter {
 				composite.addAttributes(relElement);
 				//composite.addRelationships(relElement);
 				
+			}*/
 			}
 		}
 	}

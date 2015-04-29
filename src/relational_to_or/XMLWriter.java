@@ -61,7 +61,7 @@ public class XMLWriter {
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File("/home/haripriya/workspace/ReverseEngg/src/reverse", file_name).getPath());
+			StreamResult result = new StreamResult(new File("/home/anusha/Data Modeling/RelationalToOR/src/generated_xmls", file_name).getPath());
 			transformer.transform(source, result);
 		}
 		catch(TransformerException tfe) {

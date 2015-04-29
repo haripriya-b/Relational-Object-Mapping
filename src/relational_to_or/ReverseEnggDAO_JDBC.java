@@ -261,7 +261,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	@Override
 	public void findManyToManyRelations() {
 		for(int i =0; i<classes.size(); i++) {
-			if(classes.get(i).getPrimaryKeys().size()==2) {
+			if(classes.get(i).getPrimaryKeys().size()==2 && classes.get(i).getAttributes().size()==0) {
 				for(int j=0; j<constraints.size(); j++) {
 					if(StringUtils.equals(constraints.get(j).getTable().getName(),classes.get(i).getName())) {
 						constraints.get(j).setType(Relation_Type.MANY_TO_MANY);

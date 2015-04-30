@@ -1,14 +1,18 @@
 package relational_to_or;
 
+// Stores an attribute(name, type size, null/not null, unique)
+
 public class Attribute {
 	
+	// Attributes
 	String name;
+	// Type can be int, char, varchar etc.
 	String type;
 	int size;
 	boolean is_nullable;
 	boolean unique;
 	
-	
+	// Constructor
 	public Attribute(String name, String type, int size, boolean notnull,
 			boolean unique) {
 		this.name = name;
@@ -17,6 +21,8 @@ public class Attribute {
 		this.is_nullable = notnull;
 		this.unique = unique;
 	}
+	
+	// Getters and Setters
 	public String getName() {
 		return name;
 	}
@@ -52,7 +58,4 @@ public class Attribute {
 		System.out.println("Attribute [name=" + name + ", type=" + type + ", size=" + size
 				+ ", notnull=" + is_nullable + ", unique=" + unique + "]");
 	}
-	
-	
-
 }

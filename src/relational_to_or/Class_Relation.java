@@ -2,10 +2,15 @@ package relational_to_or;
 
 import java.util.ArrayList;
 
+// Stores the details of the various relations that the class participates in
+
+
 public class Class_Relation {
+	// Attributes
 	Class_Details class_Details;
 	ArrayList<Referential_Constraint> relations = new ArrayList<>();
 	
+	// Getters and Setters. 
 	public Class_Details getClass_Details() {
 		return class_Details;
 	}
@@ -18,9 +23,12 @@ public class Class_Relation {
 	public void setRelations(ArrayList<Referential_Constraint> relations) {
 		this.relations = relations;
 	}
+	
+	// Adds a relation to the set of relations of the class
 	public void addRelation(Referential_Constraint relation) {
 		relations.add(relation);
 	}
+	
 	@Override
 	public String toString() {
 		String r = "";

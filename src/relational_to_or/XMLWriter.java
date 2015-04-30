@@ -18,12 +18,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 
+// Using DOM API, it creates a tree for a given class and using this tree, generates the XML-Mapping file for
+// a given class.
 public class XMLWriter {
+	// Attribute
 	Class_Details c;
 	String file_name;
 	Document doc;
 	ArrayList<Class_Relation> class_Relations;
 	
+	// Constructor
 	public XMLWriter(Class_Details c, String file_name, ArrayList<Class_Relation> class_Relations) {
 		this.c = c;
 		this.file_name = file_name;
@@ -41,12 +45,14 @@ public class XMLWriter {
 		this.doc = doc;
 	}
 	
+	// Constructor
 	public XMLWriter (Class_Details c, ArrayList<Class_Relation> class_Relations, Document doc) {
 		this.c = c;
 		this.class_Relations = class_Relations;
 		this.doc = doc;
 	}
 	
+	// Creates an XML Document
 	public void createXML() {
 		createTree();
 		try {
@@ -61,7 +67,7 @@ public class XMLWriter {
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File("/home/anusha/Data Modeling/RelationalToOR/src/generated_xmls", file_name).getPath());
+			StreamResult result = new StreamResult(new File("/home/haripriya/workspace/ReverseEngg/src/reverse", file_name).getPath());
 			transformer.transform(source, result);
 		}
 		catch(TransformerException tfe) {
@@ -69,6 +75,8 @@ public class XMLWriter {
 		}		
 	}
 	
+	// Creates a DOM tree with root as hibernate-mapping and the class as the child of the root.
+	// All pks, attributes and relations of the class are added as children of the class. 
 	private void createTree() {
 		// creating root element
 		Element rootElement = doc.createElement("hibernate-mapping");
@@ -86,6 +94,7 @@ public class XMLWriter {
 		addRelationships(classElement);
 	}
 	
+	// Sets the attributes of primary keys and adds them as children of a class in the DOM tree.  
 	private void addPrimaryKeys(Element classElement) {
 		ArrayList <Attribute> primaryKeys = c.getPrimaryKeys();
 		//creating id element for pks
@@ -109,6 +118,7 @@ public class XMLWriter {
 	    }
 	}
 	
+	// Sets the details of Attributes of a class and adds them as children of the class in the DOM tree 
 	private void addAttributes(Element classElement) {
 		ArrayList <Attribute> attributes = c.getAttributes();
 		//creating property element for each attribute
@@ -123,6 +133,7 @@ public class XMLWriter {
 		}
 	}
 	
+	// Adds the various relations of a class as its children in the DOM tree
 	private void addRelationships(Element classElement) {
 		Class_Relation rel = new Class_Relation();
 		for(int i=0;i<class_Relations.size();i++) {
@@ -134,6 +145,8 @@ public class XMLWriter {
 		for (int i=0;i<relations.size();i++) {
 			Referential_Constraint relation = relations.get(i);
 			
+			// If the relation is ONE_TO_ONE, add it as many-to-many with unique=true in class which has 
+			// inverse=true and as one-to-one to the other class. 
 			if (relation.getType() == Relation_Type.ONE_TO_ONE) {
 				
 				if(relation.isInverse() == true) {
@@ -143,7 +156,6 @@ public class XMLWriter {
 					relElement.setAttribute("unique", "true");
 					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
 					relElement.setAttribute("class", refTable);
-					//relElement.setAttribute("cascade", "all");
 					relElement.setAttribute("not-null", "true");
 					relElement.setAttribute("column", relation.getColumn().getName());
 				}else {
@@ -156,7 +168,8 @@ public class XMLWriter {
 				}
 					
 				
-				
+			// If the relation in MANY_TO_ONE, add it as many-to-one to the side having isInverse=false and as 
+			// one-to-many with inverse=true to the other side.
 			}else if (relation.getType() == Relation_Type.MANY_TO_ONE) {
 				if (relation.isInverse() == false) {
 					Element relElement = doc.createElement("many-to-one");
@@ -185,6 +198,9 @@ public class XMLWriter {
 					relElement.setAttribute("class", refTable);
 				}
 				
+			// If the relation is MANY_TO__MANY and the class is not the joined class of the two classes in the 
+			// many-to-many relation, find the other class in the many-to-many relation using the joined class
+			// and add it as the many-to-many relation.
 			}else if (relation.getType() == Relation_Type.MANY_TO_MANY) {
 				
 				if(relation.getTable().getPrimaryKeys().size() != 2) {
@@ -220,6 +236,8 @@ public class XMLWriter {
 					relElement.setAttribute("class", ref);
 					
 				}
+			// If the relation is INHERITANCE, the sub class along with its properties is added as a
+			// joined-subclass to the superclass.
 			}else if (relation.getType() == Relation_Type.INHERITANCE) {
 				
 				Class_Relation subClass = new Class_Relation();
@@ -242,7 +260,7 @@ public class XMLWriter {
 				sub.addAttributes(subClassElement);
 				sub.addRelationships(subClassElement);
 				
-				
+			// If the relation is COMPOSITION, it is added as a many-to-one relation with the cascade set to all.
 			}else if (relation.getType() == Relation_Type.COMPOSITION) {
 				if (relation.isInverse() == false) {
 					Element relElement = doc.createElement("many-to-one");
@@ -270,40 +288,6 @@ public class XMLWriter {
 					String refTable = relation.getReferencedTable().getName().substring(0, 1).toUpperCase() + relation.getReferencedTable().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
 					relElement.setAttribute("class", refTable);
 				}
-				
-			
-			
-			
-			
-			/*else if (relation.getType() == Relation_Type.COMPOSITION) {
-				
-				Class_Relation compositeClass = new Class_Relation();
-				for (int j=0;j<class_Relations.size();j++) {
-					if(relation.getReferencedTable().getName().equals(class_Relations.get(j).getClass_Details().getName())) 
-						compositeClass = class_Relations.get(j);
-				}
-				
-				XMLWriter composite = new XMLWriter(compositeClass.getClass_Details(), class_Relations,this.doc);
-				
-				Element setElement = doc.createElement("set");
-				classElement.appendChild(setElement);
-				setElement.setAttribute("name", relation.getReferencedTable().getName().toLowerCase());
-				setElement.setAttribute("table", relation.getReferencedTable().getName());
-				setElement.setAttribute("lazy", "true");
-				
-				Element keyElement = doc.createElement("key");
-				setElement.appendChild(keyElement);
-				keyElement.setAttribute("column", relation.getTable().getPrimaryKeys().get(0).getName());
-				 
-				Element relElement = doc.createElement("composite-element");
-				setElement.appendChild(relElement);
-				String ref = compositeClass.getClass_Details().getName().substring(0, 1) + compositeClass.getClass_Details().getName().substring(1, relation.getReferencedTable().getName().length()).toLowerCase();
-				relElement.setAttribute("class", ref);
-				
-				composite.addAttributes(relElement);
-				//composite.addRelationships(relElement);
-				
-			}*/
 			}
 		}
 	}

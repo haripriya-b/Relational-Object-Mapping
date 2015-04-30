@@ -6,14 +6,19 @@ import java.sql.*;
 import org.apache.commons.lang.StringUtils;
 
 public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
-	
+	// Attributes
 	Connection dbconnection;
 	String dbname;
+	// Details of all the constraints in the database 
 	ArrayList<Referential_Constraint> constraints;
+	// Details(name, attributes, pks) of all the classes in the database
 	ArrayList<Class_Details> classes;
+	// Details of all the relations(two classes involved, type of relation, ) between the 
+	// various classes in the database
 	ArrayList<Class_Relation> class_Relations = new ArrayList<>();
 	
 
+	//Getters
 	public ArrayList<Class_Details> getClasses() {
 		return classes;
 	}
@@ -26,7 +31,14 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		return constraints;
 	}
 	
+	// Constructor 
+	public ReverseEnggDAO_JDBC(Connection dbconnection2, String dbname) {
+		this.dbconnection = dbconnection2;
+		this.dbname = dbname;
+	}
+
 	@Override
+	// Given a className, returns all the relations in which that particular class participates
 	public Class_Relation getClassRelationbyName(String className) {
 		for(int i=0; i<class_Relations.size(); i++) {
 			if(class_Relations.get(i).getClass_Details().getName().equals(className)) {
@@ -36,12 +48,8 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		return null;
 	}
 
-	public ReverseEnggDAO_JDBC(Connection dbconnection2, String dbname) {
-		this.dbconnection = dbconnection2;
-		this.dbname = dbname;
-	}
-
 	@Override
+	// Gets a list of names of all the classes/tables in the database
 	public ArrayList<String> getClassNames() {
 		String sql;
 		Statement stmt = null;
@@ -66,8 +74,10 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// Gets a list of all the attributes(other than the primary keys) of a give class/table 
+	// in a format accepted by hibernate
 	public ArrayList<Attribute> getAttributes(String className) {
-		
+		// A map between the data-types as stored in mysql and their corresponding counter-parts in hibernate
 		HashMap<String,String> m1 = new HashMap<String,String>();
 		m1.put("int", "integer");
 		m1.put("bigint", "long");
@@ -85,12 +95,16 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		m1.put("varbinary","binary");
 		m1.put("blob","blob");
 		m1.put("clob","clob");      
+		
 		String sql;
 		Statement stmt_attributes = null;
 		ArrayList<Attribute> attributes= new ArrayList<Attribute>();
+		
 		try {
 			
 			stmt_attributes = dbconnection.createStatement();
+			
+			// An sql join statement to get the all the attributes except the pks.
 			sql = "select column_name name, data_type type, "
 					+ "character_maximum_length size, is_nullable, "
 					+ "constraint_type from information_schema.columns "
@@ -131,7 +145,9 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// Gets all the primary keys of a class and related data.
 	public ArrayList<Attribute> getPrimaryKeys(String className) {
+		// A map between the data-types as stored in mysql and their corresponding counter-parts in hibernate
 		HashMap<String,String> m1 = new HashMap<String,String>();
 		m1.put("int", "integer");
 		m1.put("bigint", "long");
@@ -154,6 +170,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 		ArrayList<Attribute> list_of_pks= new ArrayList<Attribute>();
 		try{
 			stmt_primarykey1 = dbconnection.createStatement();
+			// An sql statement to get the pks and related data.
 			sql = "select column_name, data_type, character_maximum_length from ";
 			sql+="information_schema.columns where table_schema=\"" + dbname + "\" and ";
 			sql+="table_name=\"" + className + "\" and column_key='PRI'";
@@ -178,6 +195,8 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// Given the names of the various classes in the database, it returns a list of Class_details containing the
+	// name of the class, list of its attribute and pks.
 	public void generateClasses(ArrayList<String> classNames) {
 		classes = new ArrayList<Class_Details>();
 		for(int i=0; i<classNames.size(); i++) {
@@ -191,6 +210,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 
 
 	@Override
+	// Given the name of the class, returns the details(Class_Details) of that particular class
 	public Class_Details getClassbyName(String name) {
 			for(int i=0; i<classes.size(); i++)
 			{
@@ -202,6 +222,8 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	
 
 	@Override
+	// Given the names of the class and the required attribute(even pk), it searches through the list of 
+	// attributes and pks and returns the details of that particular attribute
 	public Attribute getAttributebyName(String name, Class_Details class1) {
 		for(int i=0; i<class1.getAttributes().size(); i++)
 		{
@@ -217,6 +239,8 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// Queries the information_schema and gets all the possible relations between various classes adds 
+	// the relation to the list of Referential_Constraints
 	public void getAllConstraints() {
 		String sql;
 		Statement stmt_referentialconstraint1 = null;
@@ -259,6 +283,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// If the primary key is a composite key, it detects and sets the type of the relation to MANY_TO_MANY
 	public void findManyToManyRelations() {
 		for(int i =0; i<classes.size(); i++) {
 			if(classes.get(i).getPrimaryKeys().size()==2 && classes.get(i).getAttributes().size()==0) {
@@ -272,6 +297,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// If OnDeleteCascade is true and the primary key is a foreign key reference to the other table the type is set to INHERITANCE
 	public void findInheritance() {
 		for(int i=0; i<this.constraints.size();i++) {
 			if(this.constraints.get(i).isOnDeleteCascade() && this.constraints.get(i).getType()==null) {
@@ -283,6 +309,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// If onDeleteCascade is true and the type of the relation is not yet set, it is set to COMPOSITION 
 	public void findComposition() {
 		for(int i=0; i<this.constraints.size(); i++) {
 			if(this.constraints.get(i).isOnDeleteCascade() && this.constraints.get(i).getType()==null) {
@@ -292,6 +319,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// If there is a foreign key reference to a column and the foreign key column is also set as UNIQUE, the relation type is set to ONE_TO_ONE
 	public void findOnetoOne() {
 		for(int i=0; i<this.constraints.size(); i++) {
 			if(this.constraints.get(i).getColumn().isUnique() && this.constraints.get(i).getType()==null) {
@@ -301,6 +329,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 
 	@Override
+	// All the rest of the relations whose types are not yet set are set to MANY_TO_MANY
 	public void findOneToMany() {
 		for(int i=0; i<this.constraints.size(); i++) {
 			if(this.constraints.get(i).getType()==null) {
@@ -310,8 +339,11 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 	}
 	
 	@Override
+	// Gets all the constraints, sets the type of relation and add the relation to the set of relation in
+	// each of the class that participates in the relation.
 	public void getAllRelations() {
 		
+		// Gets all the possible relations and detects and sets the type of the relation
 		getAllConstraints();
 		findManyToManyRelations();
 		findInheritance();
@@ -325,6 +357,7 @@ public class ReverseEnggDAO_JDBC implements ReverseEnggDAO {
 			class_Relations.add(cr);
 		}
 		
+		// Goes through all the relations and adds them to each of the class that participates in the relation
 		for(int i = 0; i<constraints.size(); i++) {
 			if(constraints.get(i).getType()==Relation_Type.ONE_TO_ONE) {
 				getClassRelationbyName(constraints.get(i).getTable().getName()).addRelation(constraints.get(i));
